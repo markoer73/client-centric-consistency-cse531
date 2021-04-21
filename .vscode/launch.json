@@ -1,0 +1,19 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Main.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            //"args": ["-i ${cwd}/CSE531/grpc1.json", "-o ${cwd}/CSE531/grpc_output1.json"],
+            //"args": ["-i ${cwd}/CSE531/grpc.json", "-o ${cwd}/CSE531/grpc_output.json"],
+            "args": ["-i ${cwd}/CSE531/logical_clock1.json", "-o ${cwd}/CSE531/logical_clock_output1.json", "-c ${cwd}/CSE531/logical_clock_branches1.json", "-p True", "-w True"],
+            "console": "integratedTerminal"
+            //"console": "externalTerminal"
+        }
+    ]
+}

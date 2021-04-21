@@ -1,0 +1,102 @@
+[
+  {
+    "id" : 1,
+    "type" : "customer",
+    "events" :  [{ "id": 1, "interface":"query", "money": 400 }]
+  },
+  {
+    "id" : 2,
+    "type" : "customer",
+    "events" :  [{ "id": 2, "interface":"deposit", "money": 170 },{ "id": 3, "interface":"query", "money": 400 }]
+  },
+  {
+    "id" : 3,
+    "type" : "customer",
+    "events" :  [{ "id": 4, "interface":"withdraw", "money": 70 },{ "id": 5, "interface":"query", "money": 400 }]
+  },
+  {
+    "id" : 4,
+    "type" : "customer",
+    "events" :  [{ "id": 6, "interface":"deposit", "money": 50 },{ "id": 7, "interface":"query", "money": 400 }]
+  },
+  {
+    "id" : 5,
+    "type" : "customer",
+    "events" :  [{ "id": 8, "interface":"deposit", "money": 150 },{ "id": 9, "interface":"query", "money": 400 }]
+  },
+  {
+    "id" : 6,
+    "type" : "customer",
+    "events" :  [{ "id": 10, "interface":"withdraw", "money": 80 },{ "id": 11, "interface":"query", "money": 400 }]
+  },
+  {
+    "id" : 7,
+    "type" : "customer",
+    "events" :  [{ "id": 12, "interface":"deposit", "money": 300 }, { "id": 13, "interface":"withdraw", "money": 20 }, { "id": 14, "interface":"query", "money": 400 }]
+  },
+  {
+    "id" : 8,
+    "type" : "customer",
+    "events" :  [{ "id": 15, "interface":"query", "money": 400 }]
+  },
+  {
+    "id" : 9,
+    "type" : "customer",
+    "events" :  [{ "id": 16, "interface":"withdraw", "money": 440 },{ "id": 17, "interface":"query", "money": 400 }]
+  },
+  {
+    "id" : 10,
+    "type" : "customer",
+    "events" :  [{ "id": 18, "interface":"withdraw", "money": 20 },{ "id": 19, "interface":"query", "money": 400 }]
+  },
+  {
+    "id" : 1,
+    "type" : "branch",
+    "balance" : 400
+  },
+  {
+    "id" : 2,
+    "type" : "branch",
+    "balance" : 400
+  },
+  {
+    "id" : 3,
+    "type" : "branch",
+    "balance" : 400
+  },
+  {
+    "id" : 4,
+    "type" : "branch",
+    "balance" : 400
+  },
+  {
+    "id" : 5,
+    "type" : "branch",
+    "balance" : 400
+  },
+  {
+    "id" : 6,
+    "type" : "branch",
+    "balance" : 400
+  },
+  {
+    "id" : 7,
+    "type" : "branch",
+    "balance" : 400
+  },
+  {
+    "id" : 8,
+    "type" : "branch",
+    "balance" : 400
+  },
+  {
+    "id" : 9,
+    "type" : "branch",
+    "balance" : 400
+  },
+  {
+    "id" : 10,
+    "type" : "branch",
+    "balance" : 400
+  }
+]
