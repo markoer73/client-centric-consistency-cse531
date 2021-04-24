@@ -128,3 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 CSE531/Main.py
+lib/python3.8/site-packages/__pycache__/_virtualenv.cpython-38.pyc
+lib/python3.8/site-packages/__pycache__/six.cpython-38.pyc
