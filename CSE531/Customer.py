@@ -36,6 +36,9 @@ class Customer:
         self.recvMsg = list()
         # pointer for the stub
         self.stub = None
+        # the list of Branches including IDs and Addresses
+        # This is required in the client-centric consistency assignment
+        self.branchList = list()
         # GUI Window handle, if used
         self.window = None
 
@@ -96,36 +99,39 @@ class Customer:
         Returns:
             None
 
-        """                
+        """
         record = {'id': self.id, 'recv': []}
         for event in self.events:
             request_id = event['id']
             request_operation = get_operation(event['interface'])
             request_amount = event['money']
+            try:
+                request_dest = event['dest']        # In case of client-consistency
+            except KeyError:
+                request_dest = self.id
             
             try:
                 LogMessage = (
-                    f'[Customer {self.id}] Executing request: ID {request_id} against Branch - '
+                    f'[Customer {self.id}] Executing request: ID {request_id} against Branch {request_dest} - '
                     f'Operation: {get_operation_name(request_operation)} - '
                     f'Initial balance: {request_amount}')
                 MyLog(logger, LogMessage, self)
 
-                # The customer's clock is not used in gRPC and Lampard's algorithm, but will be
-                # likely used in the Client Consistency's exercise.
-                # In the logical clock assignment (Lampars's algorithm), it is checked, but the configuration
-                # file for customers does not allow setting it anyway.
+                # The customer's clock is not used, but could be a future expansion.
+                # In the logical clock assignment (Lampars's algorithm), it is checked,
+                # but the configuration file for customers does not allow setting it anyway.
                 response = self.stub.MsgDelivery(
                     banking_pb2.MsgDeliveryRequest(
                         REQ_ID=request_id,
                         OP=request_operation,
                         Amount=request_amount,
-                        D_ID=self.id,
+                        D_ID=request_dest,
                         Clock=0
                     )
                 )
                 
                 LogMessage = (
-                    f'[Customer {self.id}] Received response to request ID {request_id} from Branch - '
+                    f'[Customer {self.id}] Received response to request ID {request_id} from Branch {request_dest} - '
                     f'Operation: {get_operation_name(request_operation)} - Result: {get_result_name(response.RC)} - '
                     f'New balance: {response.Amount}')
                 values = {

@@ -153,15 +153,21 @@ def main():
         #    LOGGER.info(f'    #{e["id"]} = {e["interface"]}, {e["money"]}' )
         #sys.stdout.flush()
 
-        # Find the bind_address of the Branch for the current Customer and pass it to the Customer Class
+        # Find the bind_address of the Branch for the current Customer and pass it to
+        # the Customer Class.  This is used in the first two assignments. In the client-
+        # centric consistency assignment, the Customers need to be able to address all
+        # of the Branches
         for i in range(len(branches_addresses_ids)):
             if branches_addresses_ids[i][0] == curr_customer.id:
                 Branch_address = branches_addresses_ids [i][1]
                 break
+
+        # Copy the list of all the branches and PIDs to the Customer
+        curr_customer.branchList = branches_addresses_ids[:]
         
         worker = multiprocessing.Process(name=f'Customer-{curr_customer.id}', target=Customer.Run_Customer,
                                             args=(curr_customer,Branch_address,output_file,_sg_windows,THREAD_CONCURRENCY))
-        if ((sg == NotImplemented or not(want_windows)) and SLEEP_SECONDS):
+        if ((sg == NotImplemented or not(_sg_windows)) and SLEEP_SECONDS):
             # Wait some seconds before initialising the clients, to give time the servers to start
             MyLog(logger, f'[Main] *** Waiting for {SLEEP_SECONDS} seconds before starting the clients ***')
             MyLog(logger, f'[Main]     (Otherwise it will sometimes fail when the computer is slow)')
@@ -240,12 +246,15 @@ def main():
                     'name': curr_record['name'],
                 })
 
-            if (PRETTY_JSON):
-                if any((event_dict.get('data'))):
-                    json.dump(event_dict, outfile, indent=2)
-            else:
-                if any((event_dict.get('data'))):
-                    json.dump(event_dict, outfile)
+            try:
+                if (PRETTY_JSON):
+                    if any((event_dict.get('data'))):
+                        json.dump(event_dict, outfile, indent=2)
+                else:
+                    if any((event_dict.get('data'))):
+                        json.dump(event_dict, outfile)
+            except TypeError:
+                pass
 
             outfile.close()
 
