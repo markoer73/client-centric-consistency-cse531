@@ -33,7 +33,6 @@ import banking_pb2_grpc
 # Multiprocessing code reused from https://github.com/grpc/grpc/tree/801c2fd832ec964d04a847c6542198db093ff81d/examples/python/multiprocessing
 #
 
-
 # Load input file with branches and customers
 #
 def Load_Input_File(filename, branches_list, customers_list):
@@ -72,22 +71,6 @@ def Load_Input_File(filename, branches_list, customers_list):
 
     file.close()
 
-# Utility function to reserve a port for the Branches' servers.
-# Always find an usable TCP/IP port on localhost.
-#
-#@contextlib.contextmanager
-#def Reserve_Port():
-#    """Find and reserve a port for the subprocess to use."""
-#    sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
-#    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-#    if  sock.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT) == 0:
-#        raise RuntimeError("Failed to set SO_REUSEPORT.")
-#    sock.bind(('', 0))
-#    try:
-#        yield sock.getsockname()[1]
-#    finally:
-#        sock.close()
-#
 def Reserve_Port():
     with socketserver.TCPServer(("localhost", 0), None) as s:
         free_port = s.server_address[1]
