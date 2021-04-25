@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "/home/tano/Documents/client-centric-consistency/client-centric-consistency/bin/python3.8",
+    "python.pythonPath": "bin/python3.8",
     "files.autoSave": "onFocusChange"
 }
