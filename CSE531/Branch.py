@@ -585,7 +585,7 @@ def Run_Branch(Branch, clock_file=None, want_windows=False, THREAD_CONCURRENCY=1
     server.add_insecure_port(Branch.bind_address)
     server.start()
 
-    if ((sg == NotImplemented) or want_windows):
+    if ((sg == NotImplemented) or not(want_windows)):
         MyLog(logger,f'[Branch {Branch.id}] *** Press CTRL+C to exit the process when finished ***')
     
     Wait_Loop(Branch, want_windows)

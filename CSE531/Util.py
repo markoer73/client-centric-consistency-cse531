@@ -10,6 +10,7 @@ import logging
 import sys
 import argparse
 import multiprocessing
+import re
 
 import banking_pb2
 import banking_pb2_grpc
@@ -49,7 +50,7 @@ def MyLog (logger, LogMessage, obj=None):
     logger.info(LogMessage)
     sys.stdout.flush()
     if ((sg != NotImplemented) and (hasattr(obj, "window")) and (obj.window != None)):
-        print(LogMessage)
+        print(re.sub("\[.*\]","", LogMessage))
         if (hasattr(obj, "balance")):
             update_string = (f"Balance: {obj.balance}")
             if (obj.local_clock != None):
