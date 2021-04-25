@@ -1,5 +1,0 @@
-{"id": 3, "recv": [{"interface": "WITHDRAW", "result": "SUCCESS"}]}
-{"id": 3, "recv": [{"interface": "WITHDRAW", "result": "SUCCESS"}, {"interface": "QUERY", "result": "SUCCESS", "money": 330}]}
-{"id": 3, "recv": [{"interface": "WITHDRAW", "result": "SUCCESS"}, {"interface": "QUERY", "result": "SUCCESS", "money": 330}, {"interface": "WITHDRAW", "result": "SUCCESS"}]}
-{"id": 3, "recv": [{"interface": "WITHDRAW", "result": "SUCCESS"}, {"interface": "QUERY", "result": "SUCCESS", "money": 330}, {"interface": "WITHDRAW", "result": "SUCCESS"}, {"interface": "QUERY", "result": "SUCCESS", "money": 260}]}
-{"id": 1, "recv": [{"interface": "QUERY", "result": "SUCCESS", "money": 260}]}
