@@ -17,7 +17,10 @@ test -f ccc_output1.json && rm ccc_output1.json
 #../bin/python3 Main.py -i ccc1.json -o ccc_output1.json -wFalse -pTrue
 
 # Client-centric consistency - default input file from the assignment - try to start a graphical interface - pretty print JSON
-../bin/python3 Main.py -i ccc1.json -o ccc_output1.json -pTrue -wTrue
+#../bin/python3 Main.py -i ccc1.json -o ccc_output1.json -pTrue -wTrue
+
+# Client-centric consistency - default input file from the assignment - try to start a graphical interface - pretty print JSON
+../bin/python3 Main.py -i ccc1.json -o ccc_output1.json -c ccc_output_clock1.json -pTrue -wTrue
 
 # Lampard's logical clock - increased input file for stress test - no graphical interface - pretty print JSON
 #../bin/python3 Main.py -i logical_clock2.json -o logical_clock_output2.json -c logical_clock_branches2.json -pTrue -wFalse

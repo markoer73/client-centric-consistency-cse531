@@ -317,7 +317,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
                             )
                         )
                     LogMessage = (
-                        f'[Branch {self.id}] received response to request ID {request_id} to Branch @{stub[1]} - '
+                        f'[Branch {self.id}] Received response to request ID {request_id} to Branch @{stub[1]} - '
                         f'Operation: {get_operation_name(banking_pb2.DEPOSIT)} - Result: {get_result_name(response.RC)} - '
                         f'New balance: {response.Amount}')
                     if (self.clock_events != None):         # Verify if in the logical clock case

@@ -19,23 +19,12 @@ class BankingStub(object):
                 request_serializer=banking__pb2.MsgDeliveryRequest.SerializeToString,
                 response_deserializer=banking__pb2.MsgDeliveryResponse.FromString,
                 )
-        self.GetEvents = channel.unary_unary(
-                '/app.Banking/GetEvents',
-                request_serializer=banking__pb2.EventsRequest.SerializeToString,
-                response_deserializer=banking__pb2.EventsResponse.FromString,
-                )
 
 
 class BankingServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def MsgDelivery(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def GetEvents(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -48,11 +37,6 @@ def add_BankingServicer_to_server(servicer, server):
                     servicer.MsgDelivery,
                     request_deserializer=banking__pb2.MsgDeliveryRequest.FromString,
                     response_serializer=banking__pb2.MsgDeliveryResponse.SerializeToString,
-            ),
-            'GetEvents': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetEvents,
-                    request_deserializer=banking__pb2.EventsRequest.FromString,
-                    response_serializer=banking__pb2.EventsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -78,22 +62,5 @@ class Banking(object):
         return grpc.experimental.unary_unary(request, target, '/app.Banking/MsgDelivery',
             banking__pb2.MsgDeliveryRequest.SerializeToString,
             banking__pb2.MsgDeliveryResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetEvents(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/app.Banking/GetEvents',
-            banking__pb2.EventsRequest.SerializeToString,
-            banking__pb2.EventsResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
