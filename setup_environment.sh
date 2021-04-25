@@ -11,7 +11,7 @@ bin/python3 -m pip install --upgrade filelock
 bin/python3 -m pip install --upgrade distlib
 bin/python3 -m pip install --upgrade grpcio  --ignore-installed
 bin/python3 -m pip install --upgrade grpcio-tools --ignore-installed
-bin/python3 -m pip install --upgrade protobuf
+bin/python3 -m pip install --upgrade protobuf --ignore-installed
 bin/python3 -m pip install --upgrade pysimplegui
 
 cd CSE531
