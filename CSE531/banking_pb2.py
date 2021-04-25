@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rbanking.proto\x12\x03\x61pp\"m\n\x12MsgDeliveryRequest\x12\x0e\n\x06REQ_ID\x18\x01 \x01(\x03\x12\x1a\n\x02OP\x18\x02 \x01(\x0e\x32\x0e.app.Operation\x12\x0e\n\x06\x41mount\x18\x03 \x01(\x03\x12\x0c\n\x04\x44_ID\x18\x04 \x01(\x03\x12\r\n\x05\x43lock\x18\x05 \x01(\x03\"]\n\x13MsgDeliveryResponse\x12\n\n\x02ID\x18\x01 \x01(\x03\x12\x1b\n\x02RC\x18\x02 \x01(\x0e\x32\x0f.app.ReturnCode\x12\x0e\n\x06\x41mount\x18\x03 \x01(\x03\x12\r\n\x05\x43lock\x18\x04 \x01(\x03*1\n\tOperation\x12\t\n\x05QUERY\x10\x00\x12\x0b\n\x07\x44\x45POSIT\x10\x01\x12\x0c\n\x08WITHDRAW\x10\x02*1\n\nReturnCode\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\t\n\x05\x45RROR\x10\x02\x32M\n\x07\x42\x61nking\x12\x42\n\x0bMsgDelivery\x12\x17.app.MsgDeliveryRequest\x1a\x18.app.MsgDeliveryResponse\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\rbanking.proto\x12\x03\x61pp\"\x8b\x01\n\x12MsgDeliveryRequest\x12\x0e\n\x06REQ_ID\x18\x01 \x01(\x03\x12\x1a\n\x02OP\x18\x02 \x01(\x0e\x32\x0e.app.Operation\x12\x0e\n\x06\x41mount\x18\x03 \x01(\x03\x12\x0e\n\x06S_TYPE\x18\x04 \x01(\x03\x12\x0c\n\x04S_ID\x18\x05 \x01(\x03\x12\x0c\n\x04\x44_ID\x18\x06 \x01(\x03\x12\r\n\x05\x43lock\x18\x07 \x01(\x03\"a\n\x13MsgDeliveryResponse\x12\x0e\n\x06REQ_ID\x18\x01 \x01(\x03\x12\x1b\n\x02RC\x18\x02 \x01(\x0e\x32\x0f.app.ReturnCode\x12\x0e\n\x06\x41mount\x18\x03 \x01(\x03\x12\r\n\x05\x43lock\x18\x04 \x01(\x03*1\n\tOperation\x12\t\n\x05QUERY\x10\x00\x12\x0b\n\x07\x44\x45POSIT\x10\x01\x12\x0c\n\x08WITHDRAW\x10\x02*1\n\nReturnCode\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\t\n\x05\x45RROR\x10\x02*&\n\nSourceType\x12\x0c\n\x08\x43USTOMER\x10\x00\x12\n\n\x06\x42RANCH\x10\x01\x32M\n\x07\x42\x61nking\x12\x42\n\x0bMsgDelivery\x12\x17.app.MsgDeliveryRequest\x1a\x18.app.MsgDeliveryResponse\"\x00\x62\x06proto3'
 )
 
 _OPERATION = _descriptor.EnumDescriptor(
@@ -48,8 +48,8 @@ _OPERATION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=228,
-  serialized_end=277,
+  serialized_start=263,
+  serialized_end=312,
 )
 _sym_db.RegisterEnumDescriptor(_OPERATION)
 
@@ -79,18 +79,46 @@ _RETURNCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=279,
-  serialized_end=328,
+  serialized_start=314,
+  serialized_end=363,
 )
 _sym_db.RegisterEnumDescriptor(_RETURNCODE)
 
 ReturnCode = enum_type_wrapper.EnumTypeWrapper(_RETURNCODE)
+_SOURCETYPE = _descriptor.EnumDescriptor(
+  name='SourceType',
+  full_name='app.SourceType',
+  filename=None,
+  file=DESCRIPTOR,
+  create_key=_descriptor._internal_create_key,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='CUSTOMER', index=0, number=0,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='BRANCH', index=1, number=1,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=365,
+  serialized_end=403,
+)
+_sym_db.RegisterEnumDescriptor(_SOURCETYPE)
+
+SourceType = enum_type_wrapper.EnumTypeWrapper(_SOURCETYPE)
 QUERY = 0
 DEPOSIT = 1
 WITHDRAW = 2
 SUCCESS = 0
 FAILURE = 1
 ERROR = 2
+CUSTOMER = 0
+BRANCH = 1
 
 
 
@@ -124,15 +152,29 @@ _MSGDELIVERYREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='D_ID', full_name='app.MsgDeliveryRequest.D_ID', index=3,
+      name='S_TYPE', full_name='app.MsgDeliveryRequest.S_TYPE', index=3,
       number=4, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='Clock', full_name='app.MsgDeliveryRequest.Clock', index=4,
+      name='S_ID', full_name='app.MsgDeliveryRequest.S_ID', index=4,
       number=5, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='D_ID', full_name='app.MsgDeliveryRequest.D_ID', index=5,
+      number=6, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='Clock', full_name='app.MsgDeliveryRequest.Clock', index=6,
+      number=7, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -149,8 +191,8 @@ _MSGDELIVERYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=22,
-  serialized_end=131,
+  serialized_start=23,
+  serialized_end=162,
 )
 
 
@@ -163,7 +205,7 @@ _MSGDELIVERYRESPONSE = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='ID', full_name='app.MsgDeliveryResponse.ID', index=0,
+      name='REQ_ID', full_name='app.MsgDeliveryResponse.REQ_ID', index=0,
       number=1, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -202,8 +244,8 @@ _MSGDELIVERYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=133,
-  serialized_end=226,
+  serialized_start=164,
+  serialized_end=261,
 )
 
 _MSGDELIVERYREQUEST.fields_by_name['OP'].enum_type = _OPERATION
@@ -212,6 +254,7 @@ DESCRIPTOR.message_types_by_name['MsgDeliveryRequest'] = _MSGDELIVERYREQUEST
 DESCRIPTOR.message_types_by_name['MsgDeliveryResponse'] = _MSGDELIVERYRESPONSE
 DESCRIPTOR.enum_types_by_name['Operation'] = _OPERATION
 DESCRIPTOR.enum_types_by_name['ReturnCode'] = _RETURNCODE
+DESCRIPTOR.enum_types_by_name['SourceType'] = _SOURCETYPE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 MsgDeliveryRequest = _reflection.GeneratedProtocolMessageType('MsgDeliveryRequest', (_message.Message,), {
@@ -237,8 +280,8 @@ _BANKING = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=330,
-  serialized_end=407,
+  serialized_start=405,
+  serialized_end=482,
   methods=[
   _descriptor.MethodDescriptor(
     name='MsgDelivery',

@@ -111,45 +111,67 @@ class Customer:
                 request_dest = self.id
             
             try:
-                LogMessage = (
-                    f'[Customer {self.id}] Executing request: ID {request_id} against Branch {request_dest} - '
-                    f'Operation: {get_operation_name(request_operation)} - '
-                    f'Initial balance: {request_amount}')
-                MyLog(logger, LogMessage, self)
-
-                # The customer's clock is not used, but could be a future expansion.
-                # In the logical clock assignment (Lampars's algorithm), it is checked,
-                # but the configuration file for customers does not allow setting it anyway.
-                response = self.stub.MsgDelivery(
-                    banking_pb2.MsgDeliveryRequest(
-                        REQ_ID=request_id,
-                        OP=request_operation,
-                        Amount=request_amount,
-                        D_ID=request_dest,
-                        Clock=0
-                    )
-                )
-                
-                LogMessage = (
-                    f'[Customer {self.id}] Received response to request ID {request_id} from Branch {request_dest} - '
-                    f'Operation: {get_operation_name(request_operation)} - Result: {get_result_name(response.RC)} - '
-                    f'New balance: {response.Amount}')
-                values = {
-                    'interface': get_operation_name(request_operation),
-                    'result': get_result_name(response.RC),
-                }
-                MyLog(logger, LogMessage, self)
-
                 if request_operation == banking_pb2.QUERY:
-                    values['money'] = response.Amount
-                record['recv'].append(values)
-                                 
-                if record['recv']:
-                    # DEBUG
-                    #MyLog(logger,f'Writing JSON file on #{output_file}')
-                    with open(f'{output_file}', 'a') as outfile:
-                        json.dump(record, outfile)
-                        outfile.write('\n')
+                    request_amount_string = ""
+                else:
+                    request_amount_string = str(event['money'])
+                LogMessage = (
+                    f'[Customer {self.id}] ID {request_id}: '
+                    f'{get_operation_name(request_operation)} {request_amount_string}'
+                    f' -> Branch {request_dest}')
+                MyLog(logger, LogMessage, self)
+
+                # Find the right Branch to send to
+                msgStub = None
+                for curr_branch in self.branchList:
+                    if request_dest == curr_branch[0]:
+                        msgStub = banking_pb2_grpc.BankingStub(grpc.insecure_channel(curr_branch[1]))
+                        break
+                
+                if msgStub == None:
+                    LogMessage = (
+                        f'[Customer {self.id}] Error on ID {request_id}: '
+                        f'Branch {request_dest} not found in the list.  Not executed.')
+                    MyLog(logger, LogMessage, self)
+                else:
+                    # The customer's clock is not used, but could be a future expansion.
+                    # In the logical clock assignment (Lampars's algorithm), it is checked,
+                    # but the configuration file for customers does not allow setting it anyway.
+                    response = msgStub.MsgDelivery(
+                        banking_pb2.MsgDeliveryRequest(
+                            REQ_ID=request_id,
+                            OP=request_operation,
+                            Amount=request_amount,
+                            S_TYPE=banking_pb2.CUSTOMER,    # Source Type = Customer
+                            S_ID=self.id,                   # Source ID
+                            D_ID=request_dest,
+                            Clock=0
+                        )
+                    )
+                    
+                    if request_operation == banking_pb2.QUERY:
+                        response_amount_string = f"Balance: {response.Amount}"
+                    else:
+                        response_amount_string = f"New balance: {response.Amount}"
+                    LogMessage = (
+                        f'[Customer {self.id}] ID {request_id}: {get_result_name(response.RC)} <- Branch {request_dest} - '
+                        f'{response_amount_string}')
+                    MyLog(logger, LogMessage, self)
+
+                    values = {
+                        'interface': get_operation_name(request_operation),
+                        'result': get_result_name(response.RC),
+                    }
+                    if request_operation == banking_pb2.QUERY:
+                        values['money'] = response.Amount
+                    record['recv'].append(values)
+                                    
+                    if record['recv']:
+                        # DEBUG
+                        #MyLog(logger,f'Writing JSON file on #{output_file}')
+                        with open(f'{output_file}', 'a') as outfile:
+                            json.dump(record, outfile)
+                            outfile.write('\n')
                         
             except grpc.RpcError as rpc_error_call:
                 code = rpc_error_call.code()
@@ -185,7 +207,8 @@ class Customer:
 #                    with client_lock:
                     Customer.executeEvents(self, output_file, want_windows)
                     MyLog(logger,f'[Customer {self.id}] Events executed. Exiting successfully.')
-                    break
+                    # Uncommenting this break makes the Customer's Window close after Run
+                    #break
 
             self.window.close()
         else:

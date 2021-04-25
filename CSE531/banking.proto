@@ -25,19 +25,26 @@ enum ReturnCode {
 	ERROR			= 2;		// Error in the operation
 }
 
+enum SourceType {
+	CUSTOMER 		= 0;		// Query, Deposit, or Withdraw succeeded
+	BRANCH			= 1;		// Query, Deposit, or Withdraw failed
+}
+
 message MsgDeliveryRequest  {
-	int64 REQ_ID	= 1;		// Branch or Client Request ID
-	Operation OP	= 2;		// Operation requested
-	int64 Amount 	= 3;		// Amount of $$ involved
-	int64 D_ID		= 4;		// Branch  Destination ID
-	int64 Clock		= 5;		// Tick clock in the case of logical clock case
+	int64 REQ_ID	= 1;		// Branch or Client's Request ID
+	Operation OP	= 2;		// Operation requested (query, deposit, withdraw)
+	int64 Amount 	= 3;		// Amount involved in the operation
+	int64 S_TYPE	= 4;		// Source Type (Customer or Branch)
+	int64 S_ID		= 5;		// Source ID
+	int64 D_ID		= 6;		// Branch Destination ID
+	int64 Clock		= 7;		// Tick clock in the case of logical clock use
 }
 
 message MsgDeliveryResponse {
-	int64 ID		= 1;		// Branch or Client ID
+	int64 REQ_ID	= 1;		// Branch or Client's Request ID
 	ReturnCode RC	= 2;		// Return Code from the operation
 	int64 Amount	= 3;		// Amound of $$ involved
-	int64 Clock		= 4;		// Tick clock in the case of logical clock case
+	int64 Clock		= 4;		// Tick clock in the case of logical clock use
 }
 
 // message EventsRequest {}
