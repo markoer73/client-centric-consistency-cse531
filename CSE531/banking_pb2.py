@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rbanking.proto\x12\x03\x61pp\"/\n\x0eWriteSetStruct\x12\x0c\n\x04S_ID\x18\x01 \x01(\r\x12\x0f\n\x07ProgrID\x18\x02 \x01(\x04\"?\n\x0fWriteSetRequest\x12\x0c\n\x04S_ID\x18\x01 \x01(\r\x12\x0f\n\x07LAST_ID\x18\x02 \x01(\x04\x12\r\n\x05\x43lock\x18\x03 \x01(\x04\"#\n\x10\x43heckSetResponse\x12\x0f\n\x07IS_LAST\x18\x01 \x01(\x08\"@\n\x10WriteSetResponse\x12\r\n\x05\x43lock\x18\x01 \x01(\x04\x12\x0c\n\x04S_ID\x18\x02 \x01(\r\x12\x0f\n\x07ProgrID\x18\x03 \x01(\x04\"\x9c\x01\n\x12MsgDeliveryRequest\x12\x0e\n\x06REQ_ID\x18\x01 \x01(\r\x12\x1a\n\x02OP\x18\x02 \x01(\x0e\x32\x0e.app.Operation\x12\x0e\n\x06\x41mount\x18\x03 \x01(\x01\x12\x0e\n\x06S_TYPE\x18\x04 \x01(\r\x12\x0c\n\x04S_ID\x18\x05 \x01(\r\x12\x0c\n\x04\x44_ID\x18\x06 \x01(\x05\x12\r\n\x05\x43lock\x18\x07 \x01(\x04\x12\x0f\n\x07ProgrID\x18\x08 \x01(\x04\"\x87\x01\n\x13MsgDeliveryResponse\x12\x0e\n\x06REQ_ID\x18\x01 \x01(\r\x12\x1b\n\x02RC\x18\x02 \x01(\x0e\x32\x0f.app.ReturnCode\x12\x0e\n\x06\x41mount\x18\x03 \x01(\x01\x12\r\n\x05\x43lock\x18\x04 \x01(\x04\x12$\n\x07WriteID\x18\x05 \x01(\x0b\x32\x13.app.WriteSetStruct*1\n\tOperation\x12\t\n\x05QUERY\x10\x00\x12\x0b\n\x07\x44\x45POSIT\x10\x01\x12\x0c\n\x08WITHDRAW\x10\x02*1\n\nReturnCode\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\t\n\x05\x45RROR\x10\x02*&\n\nSourceType\x12\x0c\n\x08\x43USTOMER\x10\x00\x12\n\n\x06\x42RANCH\x10\x01\x32\xcf\x01\n\x07\x42\x61nking\x12\x42\n\x0bMsgDelivery\x12\x17.app.MsgDeliveryRequest\x1a\x18.app.MsgDeliveryResponse\"\x00\x12@\n\x0fRequestWriteSet\x12\x14.app.WriteSetRequest\x1a\x15.app.WriteSetResponse\"\x00\x12>\n\rCheckWriteSet\x12\x14.app.WriteSetRequest\x1a\x15.app.CheckSetResponse\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\rbanking.proto\x12\x03\x61pp\"/\n\x0eWriteSetStruct\x12\x0c\n\x04S_ID\x18\x01 \x01(\r\x12\x0f\n\x07ProgrID\x18\x02 \x01(\x04\"?\n\x0fWriteSetRequest\x12\x0c\n\x04S_ID\x18\x01 \x01(\r\x12\x0f\n\x07LAST_ID\x18\x02 \x01(\x04\x12\r\n\x05\x43lock\x18\x03 \x01(\x04\"6\n\x17WriteSetCustomerRequest\x12\x0c\n\x04S_ID\x18\x01 \x01(\r\x12\r\n\x05\x43lock\x18\x03 \x01(\x04\"#\n\x10\x43heckSetResponse\x12\x0f\n\x07IS_LAST\x18\x01 \x01(\x08\")\n\x18\x43heckSetResponseCustomer\x12\r\n\x05NO_WS\x18\x01 \x01(\x08\"@\n\x10WriteSetResponse\x12\r\n\x05\x43lock\x18\x01 \x01(\x04\x12\x0c\n\x04S_ID\x18\x02 \x01(\r\x12\x0f\n\x07ProgrID\x18\x03 \x01(\x04\"\x9c\x01\n\x12MsgDeliveryRequest\x12\x0e\n\x06REQ_ID\x18\x01 \x01(\r\x12\x1a\n\x02OP\x18\x02 \x01(\x0e\x32\x0e.app.Operation\x12\x0e\n\x06\x41mount\x18\x03 \x01(\x01\x12\x0e\n\x06S_TYPE\x18\x04 \x01(\r\x12\x0c\n\x04S_ID\x18\x05 \x01(\r\x12\x0c\n\x04\x44_ID\x18\x06 \x01(\x05\x12\r\n\x05\x43lock\x18\x07 \x01(\x04\x12\x0f\n\x07ProgrID\x18\x08 \x01(\x04\"\x87\x01\n\x13MsgDeliveryResponse\x12\x0e\n\x06REQ_ID\x18\x01 \x01(\r\x12\x1b\n\x02RC\x18\x02 \x01(\x0e\x32\x0f.app.ReturnCode\x12\x0e\n\x06\x41mount\x18\x03 \x01(\x01\x12\r\n\x05\x43lock\x18\x04 \x01(\x04\x12$\n\x07WriteID\x18\x05 \x01(\x0b\x32\x13.app.WriteSetStruct*1\n\tOperation\x12\t\n\x05QUERY\x10\x00\x12\x0b\n\x07\x44\x45POSIT\x10\x01\x12\x0c\n\x08WITHDRAW\x10\x02*1\n\nReturnCode\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\t\n\x05\x45RROR\x10\x02*&\n\nSourceType\x12\x0c\n\x08\x43USTOMER\x10\x00\x12\n\n\x06\x42RANCH\x10\x01\x32\xa7\x02\n\x07\x42\x61nking\x12\x42\n\x0bMsgDelivery\x12\x17.app.MsgDeliveryRequest\x1a\x18.app.MsgDeliveryResponse\"\x00\x12@\n\x0fRequestWriteSet\x12\x14.app.WriteSetRequest\x1a\x15.app.WriteSetResponse\"\x00\x12>\n\rCheckWriteSet\x12\x14.app.WriteSetRequest\x1a\x15.app.CheckSetResponse\"\x00\x12V\n\x15\x43heckWriteSetCustomer\x12\x1c.app.WriteSetCustomerRequest\x1a\x1d.app.CheckSetResponseCustomer\"\x00\x62\x06proto3'
 )
 
 _OPERATION = _descriptor.EnumDescriptor(
@@ -48,8 +48,8 @@ _OPERATION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=536,
-  serialized_end=585,
+  serialized_start=635,
+  serialized_end=684,
 )
 _sym_db.RegisterEnumDescriptor(_OPERATION)
 
@@ -79,8 +79,8 @@ _RETURNCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=587,
-  serialized_end=636,
+  serialized_start=686,
+  serialized_end=735,
 )
 _sym_db.RegisterEnumDescriptor(_RETURNCODE)
 
@@ -105,8 +105,8 @@ _SOURCETYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=638,
-  serialized_end=676,
+  serialized_start=737,
+  serialized_end=775,
 )
 _sym_db.RegisterEnumDescriptor(_SOURCETYPE)
 
@@ -207,6 +207,45 @@ _WRITESETREQUEST = _descriptor.Descriptor(
 )
 
 
+_WRITESETCUSTOMERREQUEST = _descriptor.Descriptor(
+  name='WriteSetCustomerRequest',
+  full_name='app.WriteSetCustomerRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='S_ID', full_name='app.WriteSetCustomerRequest.S_ID', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='Clock', full_name='app.WriteSetCustomerRequest.Clock', index=1,
+      number=3, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=136,
+  serialized_end=190,
+)
+
+
 _CHECKSETRESPONSE = _descriptor.Descriptor(
   name='CheckSetResponse',
   full_name='app.CheckSetResponse',
@@ -234,8 +273,40 @@ _CHECKSETRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=136,
-  serialized_end=171,
+  serialized_start=192,
+  serialized_end=227,
+)
+
+
+_CHECKSETRESPONSECUSTOMER = _descriptor.Descriptor(
+  name='CheckSetResponseCustomer',
+  full_name='app.CheckSetResponseCustomer',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='NO_WS', full_name='app.CheckSetResponseCustomer.NO_WS', index=0,
+      number=1, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=229,
+  serialized_end=270,
 )
 
 
@@ -280,8 +351,8 @@ _WRITESETRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=173,
-  serialized_end=237,
+  serialized_start=272,
+  serialized_end=336,
 )
 
 
@@ -361,8 +432,8 @@ _MSGDELIVERYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=240,
-  serialized_end=396,
+  serialized_start=339,
+  serialized_end=495,
 )
 
 
@@ -421,8 +492,8 @@ _MSGDELIVERYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=399,
-  serialized_end=534,
+  serialized_start=498,
+  serialized_end=633,
 )
 
 _MSGDELIVERYREQUEST.fields_by_name['OP'].enum_type = _OPERATION
@@ -430,7 +501,9 @@ _MSGDELIVERYRESPONSE.fields_by_name['RC'].enum_type = _RETURNCODE
 _MSGDELIVERYRESPONSE.fields_by_name['WriteID'].message_type = _WRITESETSTRUCT
 DESCRIPTOR.message_types_by_name['WriteSetStruct'] = _WRITESETSTRUCT
 DESCRIPTOR.message_types_by_name['WriteSetRequest'] = _WRITESETREQUEST
+DESCRIPTOR.message_types_by_name['WriteSetCustomerRequest'] = _WRITESETCUSTOMERREQUEST
 DESCRIPTOR.message_types_by_name['CheckSetResponse'] = _CHECKSETRESPONSE
+DESCRIPTOR.message_types_by_name['CheckSetResponseCustomer'] = _CHECKSETRESPONSECUSTOMER
 DESCRIPTOR.message_types_by_name['WriteSetResponse'] = _WRITESETRESPONSE
 DESCRIPTOR.message_types_by_name['MsgDeliveryRequest'] = _MSGDELIVERYREQUEST
 DESCRIPTOR.message_types_by_name['MsgDeliveryResponse'] = _MSGDELIVERYRESPONSE
@@ -453,12 +526,26 @@ WriteSetRequest = _reflection.GeneratedProtocolMessageType('WriteSetRequest', (_
   })
 _sym_db.RegisterMessage(WriteSetRequest)
 
+WriteSetCustomerRequest = _reflection.GeneratedProtocolMessageType('WriteSetCustomerRequest', (_message.Message,), {
+  'DESCRIPTOR' : _WRITESETCUSTOMERREQUEST,
+  '__module__' : 'banking_pb2'
+  # @@protoc_insertion_point(class_scope:app.WriteSetCustomerRequest)
+  })
+_sym_db.RegisterMessage(WriteSetCustomerRequest)
+
 CheckSetResponse = _reflection.GeneratedProtocolMessageType('CheckSetResponse', (_message.Message,), {
   'DESCRIPTOR' : _CHECKSETRESPONSE,
   '__module__' : 'banking_pb2'
   # @@protoc_insertion_point(class_scope:app.CheckSetResponse)
   })
 _sym_db.RegisterMessage(CheckSetResponse)
+
+CheckSetResponseCustomer = _reflection.GeneratedProtocolMessageType('CheckSetResponseCustomer', (_message.Message,), {
+  'DESCRIPTOR' : _CHECKSETRESPONSECUSTOMER,
+  '__module__' : 'banking_pb2'
+  # @@protoc_insertion_point(class_scope:app.CheckSetResponseCustomer)
+  })
+_sym_db.RegisterMessage(CheckSetResponseCustomer)
 
 WriteSetResponse = _reflection.GeneratedProtocolMessageType('WriteSetResponse', (_message.Message,), {
   'DESCRIPTOR' : _WRITESETRESPONSE,
@@ -490,8 +577,8 @@ _BANKING = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=679,
-  serialized_end=886,
+  serialized_start=778,
+  serialized_end=1073,
   methods=[
   _descriptor.MethodDescriptor(
     name='MsgDelivery',
@@ -520,6 +607,16 @@ _BANKING = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_WRITESETREQUEST,
     output_type=_CHECKSETRESPONSE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='CheckWriteSetCustomer',
+    full_name='app.Banking.CheckWriteSetCustomer',
+    index=3,
+    containing_service=None,
+    input_type=_WRITESETCUSTOMERREQUEST,
+    output_type=_CHECKSETRESPONSECUSTOMER,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

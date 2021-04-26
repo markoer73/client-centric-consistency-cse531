@@ -37,16 +37,27 @@ test -f ccc_monotonic_writes_balance.json && rm ccc_monotonic_writes_balance.jso
 # Client-centric consistency - default input file from the assignment - no graphical interface - pretty print JSON
 #../bin/python3 Main.py -i ccc1.json -o ccc_output1.json -pTrue -wFalse
 
-echo "Running monotonic writes demo - Press any key to start"
+echo Running monotonic writes demo - Press any key to start
 echo
 read -n 1;
 # Client-centric consistency - Monotonic Writes demonstration - no graphical interface - pretty print JSON
 ../bin/python3 Main.py -i ccc_monotonic_writes.json -o ccc_monotonic_writes_output.json -b ccc_monotonic_writes_balance.json -pTrue -wFalse
-
+echo
+echo Printing the balance output...
+cat ccc_monotonic_writes_balance.json
+echo
+echo
+echo Running read your writes demo - Press any key to start
+echo
+read -n 1;
+# Client-centric consistency - Monotonic Writes demonstration - no graphical interface - pretty print JSON
+../bin/python3 Main.py -i ccc_read_your_writes.json -o ccc_read_your_writes_output.json -b ccc_read_your_writes_balance.json -pTrue -wFalse
+echo
+echo
 echo "Printing the balance output..."
 cat ccc_monotonic_writes_balance.json
-
-
+echo
+echo
 
 # Client-centric consistency - default input file from the assignment - try to start a graphical interface - pretty print JSON
 #../bin/python3 Main.py -i ccc1.json -o ccc_output1.json -c ccc_output_clock1.json -pTrue -wFalse

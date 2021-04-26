@@ -12,6 +12,7 @@ service Banking {
 	rpc MsgDelivery(MsgDeliveryRequest) returns (MsgDeliveryResponse) { }
 	rpc RequestWriteSet(WriteSetRequest) returns (WriteSetResponse) { }
 	rpc CheckWriteSet(WriteSetRequest) returns (CheckSetResponse) { }
+	rpc CheckWriteSetCustomer(WriteSetCustomerRequest) returns (CheckSetResponseCustomer) { }
 //	rpc GetEvents (EventsRequest) returns (EventsResponse) {}
 }
 
@@ -43,8 +44,17 @@ message WriteSetRequest  {
 	uint64 Clock	= 3;		// Local clock in the case of logical clock use
 }
 
+message WriteSetCustomerRequest  {
+	uint32 S_ID		= 1;		// Customer Source ID to check 
+	uint64 Clock	= 3;		// Local clock in the case of logical clock use
+}
+
 message CheckSetResponse  {
 	bool IS_LAST	= 1;		// Returns True if the current WriteID/Customer tuple of the Branch is the last
+}
+
+message CheckSetResponseCustomer  {
+	bool NO_WS		= 1;		// Returns True if the current Customer of the Branch has no more running WriteSets
 }
 
 message WriteSetResponse  {

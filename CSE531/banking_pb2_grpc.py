@@ -29,6 +29,11 @@ class BankingStub(object):
                 request_serializer=banking__pb2.WriteSetRequest.SerializeToString,
                 response_deserializer=banking__pb2.CheckSetResponse.FromString,
                 )
+        self.CheckWriteSetCustomer = channel.unary_unary(
+                '/app.Banking/CheckWriteSetCustomer',
+                request_serializer=banking__pb2.WriteSetCustomerRequest.SerializeToString,
+                response_deserializer=banking__pb2.CheckSetResponseCustomer.FromString,
+                )
 
 
 class BankingServicer(object):
@@ -52,6 +57,12 @@ class BankingServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def CheckWriteSetCustomer(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_BankingServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -69,6 +80,11 @@ def add_BankingServicer_to_server(servicer, server):
                     servicer.CheckWriteSet,
                     request_deserializer=banking__pb2.WriteSetRequest.FromString,
                     response_serializer=banking__pb2.CheckSetResponse.SerializeToString,
+            ),
+            'CheckWriteSetCustomer': grpc.unary_unary_rpc_method_handler(
+                    servicer.CheckWriteSetCustomer,
+                    request_deserializer=banking__pb2.WriteSetCustomerRequest.FromString,
+                    response_serializer=banking__pb2.CheckSetResponseCustomer.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -128,5 +144,22 @@ class Banking(object):
         return grpc.experimental.unary_unary(request, target, '/app.Banking/CheckWriteSet',
             banking__pb2.WriteSetRequest.SerializeToString,
             banking__pb2.CheckSetResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def CheckWriteSetCustomer(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/app.Banking/CheckWriteSetCustomer',
+            banking__pb2.WriteSetCustomerRequest.SerializeToString,
+            banking__pb2.CheckSetResponseCustomer.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

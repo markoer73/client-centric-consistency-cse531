@@ -146,6 +146,21 @@ class Branch(banking_pb2_grpc.BankingServicer):
                 if (SLEEP_SECONDS):
                     time.sleep(SLEEP_SECONDS)
 
+        # Enforces Read-your-Writes consistency by verifying there are no WriteSets
+        # being executed by the same Customer throughout Branches - but only if it
+        # is a query.
+        if request.OP == banking_pb2.QUERY:
+            while not(self.Are_WriteSet_From_Customer (request.S_ID)):
+                LogMessage = (
+                    f'[Branch {self.id}] ...Pausing Query until Requests from {request.S_ID} execute: '
+                )
+                if (self.clock_events != None):
+                    LogMessage += (f' - Clock: {request.Clock}')
+                MyLog(logger, LogMessage, self)
+                self.eventExecute()                     # Local Clock is advanced
+                if (SLEEP_SECONDS):
+                    time.sleep(SLEEP_SECONDS)            
+
         # Since it is a propagation, this WriteSet is not present in this Branch.
         if request.D_ID == DO_NOT_PROPAGATE:
             # Add the WriteSet to the list
@@ -223,7 +238,6 @@ class Branch(banking_pb2_grpc.BankingServicer):
         MyLog(logger, LogMessage, self)
 
         # Sets the WriteSet as executed, if not a query - AND if a propagation
-        #if (request.OP != banking_pb2.QUERY) and (request.D_ID != DO_NOT_PROPAGATE):
         if request.OP != banking_pb2.QUERY:
             set_found = Set_WriteSet_Executed (self, request.S_ID, request.ProgrID)
             LogMessage = (
@@ -396,6 +410,101 @@ class Branch(banking_pb2_grpc.BankingServicer):
 
         return return_value
 
+    def CheckWriteSetCustomer(self, request, context):
+        """
+        Check whether the request is the smallest in the list, and
+        therefore to be executed.
+
+        Args:
+            Self:       Branch class
+            request:    WriteSetCustomerRequest class (the message)
+            context:    gRPC context
+
+        Returns:
+            CheckSetResponseCustomer class (boolean)
+
+        """        
+#        with self.branch_lock:
+
+        has_execution = False
+        for curr_set in self.writeSets:
+            if (curr_set.Customer == request.S_ID) and not(curr_set.isExecuted):
+                has_execution = True
+
+        LogMessage = (
+            f'[Branch {self.id}] Check WriteSet all executed for Customer {request.S_ID}'
+            f' = {not(has_execution)}')
+        if (self.clock_events != None):             # Verify if in the logical clock use
+            LogMessage += (f' - Clock {self.local_clock}')
+        MyLog(logger, LogMessage, self)
+
+        rpc_response = banking_pb2.CheckSetResponseCustomer(
+            NO_WS=not(has_execution)
+        )
+        return rpc_response
+
+    def Are_WriteSet_From_Customer(self, customer_id):
+        """
+        Check whether the customer_id has WriteSets in execution somewhere.
+
+        Args:
+            Self:           Branch class
+            customer_id:    The ID of the customer
+
+        Returns:  Boolean, true if it is the last request
+
+        """        
+#        with self.branch_lock:
+
+        return_value = False
+
+        for curr_branch in self.branchList:
+            if self.id != curr_branch[0]:                   # Do not ask to self (should not happen, added security)
+                LogMessage = (
+                    f'[Branch {self.id}] Check WriteSets for Customer {customer_id}'
+                    f' -> Branch {curr_branch[0]}')
+                if (self.clock_events != None):             # Verify if in the logical clock use
+                    LogMessage += (f' - Clock {self.local_clock}')
+                MyLog(logger, LogMessage, self)
+
+                try:
+                    msgStub = banking_pb2_grpc.BankingStub(grpc.insecure_channel(curr_branch[1]))
+
+                    response = msgStub.CheckWriteSetCustomer(
+                        banking_pb2.WriteSetCustomerRequest(
+                            S_ID=customer_id,               # Customer ID 
+                            Clock=self.local_clock
+                        )
+                    )
+                    LogMessage = (
+                        f'[Branch {self.id}] Received {response.NO_WS} to Request for WriteSet for {customer_id} '
+                        f'<- Branch {curr_branch[0]}'
+                        )
+                    if (self.clock_events != None):         # Verify if in the logical clock case
+                        LogMessage += (f' - Clock: {response.Clock}')
+                    MyLog(logger, LogMessage, self)
+
+                    # if (self.clock_events != None):
+                    #     self.eventResponse()                # Call for eventResponse
+
+                    if response.NO_WS:
+                        return_value = True
+                        break
+
+                except grpc.RpcError as rpc_error_call:
+                    code = rpc_error_call.code()
+                    details = rpc_error_call.details()
+
+                    if (code.name == "UNAVAILABLE"):
+                        LogMessage = (f'[Branch {self.id}] Error on request ID {request_id}: Branch {curr_branch[0]} @{curr_branch[1]}'
+                                       ' likely unavailable - Code: {code} - Details: {details}')
+                    else:
+                        LogMessage = (f'[Branch {self.id}] Error on request ID {request_id}: Code: {code} - Details: {details}')
+
+                MyLog(logger, LogMessage, self)
+
+        return return_value
+
     def Query(self):
         """
         Implements the Query interface.
@@ -477,7 +586,6 @@ class Branch(banking_pb2_grpc.BankingServicer):
 
         """        
 #        with self.branch_lock:
-#        operation_name = banking_pb2.WITHDRAW
         for curr_branch in self.branchList:
             if self.id != curr_branch[0]:                       # Do not propagate to self (should not happen, added security)
                 LogMessage = (
@@ -509,7 +617,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
                         LogMessage += (f' - Clock: {response.Clock}')
 
                     if (self.clock_events != None):
-                        self.eventResponse()                                # Call for eventResponse
+                        self.eventResponse()                # Call for eventResponse
 
                 except grpc.RpcError as rpc_error_call:
                     code = rpc_error_call.code()
