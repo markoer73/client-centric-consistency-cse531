@@ -280,7 +280,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
             context:    gRPC context
 
         Returns:
-            CheckSetResponse class (gRPC response object)
+            CheckSetResponse class (boolean)
 
         """        
 #        with self.branch_lock:
@@ -288,20 +288,21 @@ class Branch(banking_pb2_grpc.BankingServicer):
         min_wid = request.S_ID
         for curr_set in self.writeSets:
             if (curr_set.Customer == request.S_ID) and not(curr_set.isExecuted):
-                if curr_set.ProgrID < request.LAST_ID:
+                if curr_set.ProgrID < min_wid:
                     min_wid = curr_set.ProgrID
 
         LogMessage = (
-            f'[Branch {self.id}] Check ID {request.S_LAST_ID} Customer {request.S_ID} '
-            f'vs {min_wid} = {(min_wid < request.LAST_ID)}')
+            f'[Branch {self.id}] Check ID {request.LAST_ID} Customer {request.S_ID} '
+            f'vs {min_wid} = {(min_wid == request.LAST_ID)}')
         if (self.clock_events != None):             # Verify if in the logical clock use
             LogMessage += (f' - Clock {self.local_clock}')
         MyLog(logger, LogMessage, self)
 
-        result_compare = bool(min_wid < request.LAST_ID)
-        rpc_response = banking_pb2.CheckIDResponse(
+        result_compare = bool(min_wid == request.LAST_ID)
+        rpc_response = banking_pb2.CheckSetResponse(
             IS_LAST=result_compare
         )
+        return rpc_response
 
     def Is_First_WriteSet(self, customer_id, request_id):
         """
@@ -312,7 +313,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
             customer_id:    The ID of the customer
             request_id:     The request ID to check
 
-        Returns: CheckIDResponse - Boolean, true if it is the last request
+        Returns:  Boolean, true if it is the last request
 
         """        
 #        with self.branch_lock:
@@ -322,7 +323,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
         for curr_branch in self.branchList:
             if self.id != curr_branch[0]:                   # Do not ask to self (should not happen, added security)
                 LogMessage = (
-                    f'[Branch {self.id}] Check WriteSet ({customer_id}, {request_id}) '
+                    f'[Branch {self.id}] Check WriteSet (R: {customer_id}, P: {request_id}) '
                     f'-> Branch {curr_branch[0]}')
                 if (self.clock_events != None):             # Verify if in the logical clock use
                     LogMessage += (f' - Clock {self.local_clock}')
@@ -348,7 +349,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
                     # if (self.clock_events != None):
                     #     self.eventResponse()                # Call for eventResponse
 
-                    if not(response.IS_LAST):
+                    if response.IS_LAST:
                         return_value = True
                         break
 
