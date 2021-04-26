@@ -11,9 +11,9 @@
             "program": "${file}",
             //"args": ["-i ${cwd}/CSE531/grpc1.json", "-o ${cwd}/CSE531/grpc_output1.json"],
             //"args": ["-i ${cwd}/CSE531/grpc.json", "-o ${cwd}/CSE531/grpc_output.json"],
-            //"args": ["-i ${cwd}/CSE531/ccc1.json", "-o ${cwd}/CSE531/ccc_output1.json", "-p True", "-w True"],
+            "args": ["-i ${cwd}/CSE531/ccc1.json", "-o ${cwd}/CSE531/ccc_output1.json", "-p True", "-w True"],
             //"args": ["-i ${cwd}/CSE531/ccc1.json", "-o ${cwd}/CSE531/ccc_output1.json", "-c ccc_output_clock1.json", "-p True", "-w True"],
-            "args": ["-i ${cwd}/CSE531/ccc2.json", "-o ${cwd}/CSE531/ccc_output2.json", "-c ccc_output_clock2.json", "-p True", "-w True"],
+            //"args": ["-i ${cwd}/CSE531/ccc2.json", "-o ${cwd}/CSE531/ccc_output2.json", "-c ccc_output_clock2.json", "-p True", "-w True"],
             "console": "integratedTerminal"
             //"console": "externalTerminal"
         }

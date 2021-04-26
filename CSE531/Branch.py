@@ -12,9 +12,10 @@ import datetime
 import sys
 import multiprocessing
 import json
+import numpy as np
 
 from concurrent import futures
-from Util import setup_logger, MyLog, sg, get_operation, get_operation_name, get_result_name, SLEEP_SECONDS
+from Util import setup_logger, MyLog, sg, get_operation, get_operation_name, get_result_name, SLEEP_SECONDS, WriteSet
 
 import grpc
 import banking_pb2
@@ -40,8 +41,6 @@ class Branch(banking_pb2_grpc.BankingServicer):
         self.balance = balance
         # the list of process IDs of the branches
         self.branches = branches
-        # the list of Client stubs to communicate with the branches
-#        self.stubList = list()
         # a list of received messages used for debugging purpose
         self.recvMsg = list()
         # Binded address
@@ -56,7 +55,60 @@ class Branch(banking_pb2_grpc.BankingServicer):
         self.clock_events = None
         # Logical clock output file (not used otherwise)
         self.clock_output = None
-        self.branch_lock = multiprocessing.Lock()
+        # list of WriteSet - used in case of client-consistency. Implemented with an Array
+        #self.writeIDs = np.array([], dtype=int)
+        self.writeSets = list()
+        # Branch locking on a specific WriteID - used in case of client-consistency
+        #self.branch_lock = multiprocessing.Lock()  # Not necessary
+
+    def RequestWriteSet(self, request, context):
+        """
+        Reserves a WriteID for a Customer. WriteIDs is a list of Customer, Progressive ID, isExecuted.
+
+        Args:
+            self:    Branch class
+            request: WriteSetRequest class (the message)
+            context: gRPC context
+
+        Returns:
+            WriteSetResponse class (WriteID response object)
+
+        """
+        Return_clock = 0
+        if (self.clock_events != None):             # If clock used
+            self.eventReceive(request.Clock)        # Event received from a customer
+            Return_clock = self.local_clock
+
+        LogMessage = (
+            f'[Branch {self.id}] -> Req WriteSet from Customer {request.S_ID}, '
+            f'Last ID: {request.LAST_ID}')
+        if (self.clock_events != None):
+            LogMessage += (f' - Clock: {request.Clock}')
+        MyLog(logger, LogMessage, self)
+
+        # WriteSets are implemented as list (Class WriteSet)
+        # Find the last ID
+        max_wid = request.LAST_ID
+        for curr_set in self.writeSets:
+            if curr_set.Customer == request.S_ID:
+                if curr_set.ProgrID > max_wid:
+                    max_wid = curr_set.ProgrID
+        NewID = max_wid+1
+
+        self.writeSets.append(WriteSet(request.S_ID, NewID, False))
+
+        LogMessage = (
+            f'[Branch {self.id}] ({request.S_ID},{NewID}) <- WriteSet reserved for Customer {request.S_ID}')
+        if (self.clock_events != None):
+            LogMessage += (f' - Clock: {Return_clock}')
+        MyLog(logger, LogMessage, self)
+
+        rpc_response = banking_pb2.WriteSetResponse(
+            Clock       = Return_clock,
+            S_ID        = request.S_ID,
+            ProgrID     = NewID
+        )
+        return rpc_response
 
     def MsgDelivery(self, request, context):
         """
@@ -65,7 +117,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
 
         Args:
             self:    Branch class
-            request: gRPC class (the message)
+            request: MsgDeliveryRequest class (the message)
             context: gRPC context
 
         Returns:
@@ -73,16 +125,26 @@ class Branch(banking_pb2_grpc.BankingServicer):
 
         """
 #        with self.branch_lock:
+
         # Keep a copy of the requests
         self.recvMsg.append(request)
+
+        # Enforces Monotonic Writes consistency by verifying this is the smallest
+        # WriteSet still to be executed for a given customer.  If not, waits for the
+        # others to complete.
+        while not(self.Is_First_WriteSet (request.S_ID, request.ProgrID)):
+            LogMessage = (
+                f'[Branch {self.id}] Waiting to execute {request.REQ_ID} from {request.S_ID}: '
+                f'{get_operation_name(request.OP)} {request.Amount}')
+            if (self.clock_events != None):
+                LogMessage += (f' - Clock: {request.Clock}')
+            MyLog(logger, LogMessage, self)
+            self.eventExecute()                     # Local Clock is advanced
+            time.sleep(SLEEP_SECONDS)
 
         balance_result = None
         response_result = None
 
-        # if request.D_ID == DO_NOT_PROPAGATE:
-        #     CustomerText = 'another Branch'
-        # else:
-        #     CustomerText = (f'Customer {request.D_ID}')
         if request.S_TYPE == banking_pb2.BRANCH:
             CustomerText = (f'Branch {request.S_ID}')
         else:
@@ -161,7 +223,8 @@ class Branch(banking_pb2_grpc.BankingServicer):
             response_clock = self.local_clock
         else:
             response_clock = 0
-        response = banking_pb2.MsgDeliveryResponse(
+        
+        rpc_response = banking_pb2.MsgDeliveryResponse(
             REQ_ID=request.REQ_ID,
             RC=response_result,
             Amount=balance_result,
@@ -204,7 +267,104 @@ class Branch(banking_pb2_grpc.BankingServicer):
             MyLog(logger, f'[Main]     (Otherwise it will sometimes fail when the computer is slow)')
             time.sleep(SLEEP_SECONDS)
 
-        return response
+        return rpc_response
+
+    def CheckWriteSet(self, request, context):
+        """
+        Check whether the request is the smallest in the list, and
+        therefore to be executed.
+
+        Args:
+            Self:       Branch class
+            request:    WriteSetRequest class (the message)
+            context:    gRPC context
+
+        Returns:
+            CheckSetResponse class (gRPC response object)
+
+        """        
+#        with self.branch_lock:
+
+        min_wid = request.S_ID
+        for curr_set in self.writeSets:
+            if (curr_set.Customer == request.S_ID) and not(curr_set.isExecuted):
+                if curr_set.ProgrID < request.LAST_ID:
+                    min_wid = curr_set.ProgrID
+
+        LogMessage = (
+            f'[Branch {self.id}] Check ID {request.S_LAST_ID} Customer {request.S_ID} '
+            f'vs {min_wid} = {(min_wid < request.LAST_ID)}')
+        if (self.clock_events != None):             # Verify if in the logical clock use
+            LogMessage += (f' - Clock {self.local_clock}')
+        MyLog(logger, LogMessage, self)
+
+        result_compare = bool(min_wid < request.LAST_ID)
+        rpc_response = banking_pb2.CheckIDResponse(
+            IS_LAST=result_compare
+        )
+
+    def Is_First_WriteSet(self, customer_id, request_id):
+        """
+        Check whether the request_id is the last (to be executed).
+
+        Args:
+            Self:           Branch class
+            customer_id:    The ID of the customer
+            request_id:     The request ID to check
+
+        Returns: CheckIDResponse - Boolean, true if it is the last request
+
+        """        
+#        with self.branch_lock:
+
+        return_value = False
+
+        for curr_branch in self.branchList:
+            if self.id != curr_branch[0]:                   # Do not ask to self (should not happen, added security)
+                LogMessage = (
+                    f'[Branch {self.id}] Check WriteSet ({customer_id}, {request_id}) '
+                    f'-> Branch {curr_branch[0]}')
+                if (self.clock_events != None):             # Verify if in the logical clock use
+                    LogMessage += (f' - Clock {self.local_clock}')
+                MyLog(logger, LogMessage, self)
+
+                try:
+                    msgStub = banking_pb2_grpc.BankingStub(grpc.insecure_channel(curr_branch[1]))
+
+                    response = msgStub.CheckWriteSet(
+                        banking_pb2.WriteSetRequest(
+                            S_ID=customer_id,               # Customer ID 
+                            LAST_ID=request_id,             # Request ID 
+                            Clock=self.local_clock
+                        )
+                    )
+                    LogMessage = (
+                        f'[Branch {self.id}] Received {response.IS_LAST} to WriteSet ({customer_id}, {request_id}) '
+                        f'<- Branch {curr_branch[0]} - '
+                        )
+                    if (self.clock_events != None):         # Verify if in the logical clock case
+                        LogMessage += (f' - Clock: {response.Clock}')
+
+                    # if (self.clock_events != None):
+                    #     self.eventResponse()                # Call for eventResponse
+
+                    if not(response.IS_LAST):
+                        return_value = True
+                        break
+
+                except grpc.RpcError as rpc_error_call:
+                    code = rpc_error_call.code()
+                    details = rpc_error_call.details()
+
+                    if (code.name == "UNAVAILABLE"):
+                        LogMessage = (f'[Branch {self.id}] Error on request ID {request_id}: Branch {curr_branch[0]} @{curr_branch[1]}'
+                                       ' likely unavailable - Code: {code} - Details: {details}')
+                    else:
+                        LogMessage = (f'[Branch {self.id}] Error on request ID {request_id}: Code: {code} - Details: {details}')
+
+                MyLog(logger, LogMessage, self)
+
+        return return_value
 
     def Query(self):
         """
@@ -300,30 +460,17 @@ class Branch(banking_pb2_grpc.BankingServicer):
                 try:
                     msgStub = banking_pb2_grpc.BankingStub(grpc.insecure_channel(curr_branch[1]))
 
-                    if (self.clock_events != None):             # Verify if in the logical clock case
-                        response = msgStub.MsgDelivery(
-                            banking_pb2.MsgDeliveryRequest(
-                                REQ_ID=request_id,
-                                OP=Operation,
-                                Amount=amount,
-                                S_TYPE=banking_pb2.BRANCH,      # Source Type = Branch
-                                S_ID=self.id,                   # Source ID 
-                                D_ID=DO_NOT_PROPAGATE,          # Sets DO_NOT_PROPAGATE for receiving branches
-                                Clock=self.local_clock
-                            )
+                    response = msgStub.MsgDelivery(
+                        banking_pb2.MsgDeliveryRequest(
+                            REQ_ID=request_id,
+                            OP=Operation,
+                            Amount=amount,
+                            S_TYPE=banking_pb2.BRANCH,      # Source Type = Branch
+                            S_ID=self.id,                   # Source ID 
+                            D_ID=DO_NOT_PROPAGATE,          # Sets DO_NOT_PROPAGATE for receiving branches
+                            Clock=self.local_clock
                         )
-                    else:
-                        response = msgStub.MsgDelivery(
-                            banking_pb2.MsgDeliveryRequest(
-                                REQ_ID=request_id,
-                                OP=Operation,
-                                Amount=amount,
-                                S_TYPE=banking_pb2.BRANCH,      # Source Type = Branch
-                                S_ID=self.id,                   # Source ID 
-                                D_ID=DO_NOT_PROPAGATE,          # Sets DO_NOT_PROPAGATE for receiving branches
-                                Clock=0
-                            )
-                        )
+                    )
                     LogMessage = (
                         f'[Branch {self.id}] Received {get_result_name(response.RC)} to ID {request_id} <- Branch {curr_branch[0]} - '
                         f'New balance: {response.Amount}')

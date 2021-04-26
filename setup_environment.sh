@@ -9,6 +9,7 @@ cd ${CURR}
 bin/python3 -m pip install --upgrade pip
 bin/python3 -m pip install --upgrade filelock
 bin/python3 -m pip install --upgrade distlib
+bin/python3 -m pip install --upgrade numpy
 bin/python3 -m pip install --upgrade grpcio  --ignore-installed
 bin/python3 -m pip install --upgrade grpcio-tools --ignore-installed
 bin/python3 -m pip install --upgrade protobuf --ignore-installed

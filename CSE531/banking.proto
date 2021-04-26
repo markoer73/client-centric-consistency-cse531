@@ -9,8 +9,10 @@ syntax = "proto3";
 package app;
 
 service Banking {
-	rpc MsgDelivery(MsgDeliveryRequest) returns (MsgDeliveryResponse) {}
-//	rpc GetEvents(EventsRequest) returns (EventsResponse) {}
+	rpc MsgDelivery(MsgDeliveryRequest) returns (MsgDeliveryResponse) { }
+	rpc RequestWriteSet(WriteSetRequest) returns (WriteSetResponse) { }
+	rpc CheckWriteSet(WriteSetRequest) returns (CheckSetResponse) { }
+//	rpc GetEvents (EventsRequest) returns (EventsResponse) {}
 }
 
 enum Operation {
@@ -30,21 +32,45 @@ enum SourceType {
 	BRANCH			= 1;		// Query, Deposit, or Withdraw failed
 }
 
+message WriteSetStruct  {		// Struct WriteID
+	uint32 S_ID		= 1;		// Original Customer Source ID 
+	uint64 ProgrID	= 2;		// Progressive ID of the write set
+}
+
+message WriteSetRequest  {
+	uint32 S_ID		= 1;		// Original Customer Source ID 
+	uint64 LAST_ID	= 2;		// ID requested by the Customer
+	uint64 Clock	= 3;		// Local clock in the case of logical clock use
+}
+
+message CheckSetResponse  {
+	bool IS_LAST	= 1;		// Returns True if the current WriteID/Customer tuple of the Branch is the last
+}
+
+message WriteSetResponse  {
+	uint64 Clock	= 1;		// Local clock in the case of logical clock use
+	uint32 S_ID		= 2;		// Original Customer Source ID
+	uint64 ProgrID	= 3;		// Progressive ID returned to the Customer
+}
+
 message MsgDeliveryRequest  {
-	int64 REQ_ID	= 1;		// Branch or Client's Request ID
+	uint32 REQ_ID	= 1;		// Request ID
 	Operation OP	= 2;		// Operation requested (query, deposit, withdraw)
-	int64 Amount 	= 3;		// Amount involved in the operation
-	int64 S_TYPE	= 4;		// Source Type (Customer or Branch)
-	int64 S_ID		= 5;		// Source ID
-	int64 D_ID		= 6;		// Branch Destination ID
-	int64 Clock		= 7;		// Tick clock in the case of logical clock use
+	double Amount 	= 3;		// Amount involved in the operation
+	uint32 S_TYPE	= 4;		// Source Type (Customer or Branch)
+	uint32 S_ID		= 5;		// Source ID
+	uint32 D_ID		= 6;		// Branch Destination ID
+	uint64 Clock	= 7;		// Local clock in the case of logical clock use
+	uint64 ProgrID	= 8;		// Progressive ID of the write request
+//	WriteSetStruct WriteID = 8;	// WriteID passed to the Branch
 }
 
 message MsgDeliveryResponse {
-	int64 REQ_ID	= 1;		// Branch or Client's Request ID
+	uint32 REQ_ID	= 1;		// Request ID
 	ReturnCode RC	= 2;		// Return Code from the operation
-	int64 Amount	= 3;		// Amound of $$ involved
-	int64 Clock		= 4;		// Tick clock in the case of logical clock use
+	double Amount	= 3;		// Amound of $$ involved
+	uint64 Clock	= 4;		// Local clock in the case of logical clock use
+	WriteSetStruct WriteID = 5;	// WriteID returned by the Branch
 }
 
 // message EventsRequest {}

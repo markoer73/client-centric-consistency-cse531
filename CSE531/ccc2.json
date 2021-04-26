@@ -2,20 +2,29 @@
   {
     "id" : 1,
     "type" : "customer",
-    "events" :  [{ "id": 1, "interface":"query", "money": 0, "dest": 3 }]
+    "events" :  [{ "id": 1, "interface":"withdraw", "money": 20, "dest": 3 },
+                 { "id": 2, "interface":"deposit",  "money": 30, "dest": 2 },
+                 { "id": 3, "interface":"withdraw", "money":  5, "dest": 1 },
+                 { "id": 4, "interface":"query",    "money":  0, "dest": 1 }
+    ]
   },
   {
     "id" : 2,
     "type" : "customer",
-    "events" :  [{ "id": 2, "interface":"deposit", "money": 170, "dest": 3 },{ "id": 3, "interface":"query", "money": 0, "dest": 3 }]
+    "events" :  [{ "id": 5, "interface":"deposit", "money": 170, "dest": 3 },
+	    	         { "id": 6, "interface":"query",   "money":   0, "dest": 2 }]
   },
   {
     "id" : 3,
     "type" : "customer",
-    "events" :  [{ "id": 4, "interface":"withdraw", "money": 70, "dest": 3 },{ "id": 5, "interface":"query", "money": 0, "dest": 3 },
-                 { "id": 6, "interface":"withdraw", "money": 50, "dest": 2 },{ "id": 6, "interface":"query", "money": 0, "dest": 2 },
-                 { "id": 7, "interface":"withdraw", "money": 30, "dest": 1 },{ "id": 8, "interface":"query", "money": 0, "dest": 1 },
-                 { "id": 9, "interface":"deposit", "money": 100, "dest": 4 },{ "id": 10, "interface":"query", "money": 0, "dest": 4 }]
+    "events" :  [{ "id": 7, "interface":"withdraw", "money": 70, "dest": 3 },
+                 { "id": 8, "interface":"query", "money": 0, "dest": 3 },
+                 { "id": 9, "interface":"withdraw", "money": 50, "dest": 2 },
+                 { "id": 10, "interface":"query", "money": 0, "dest": 2 },
+                 { "id": 11, "interface":"withdraw", "money": 30, "dest": 1 },
+                 { "id": 12, "interface":"query", "money": 0, "dest": 1 },
+                 { "id": 13, "interface":"deposit", "money": 100, "dest": 4 },
+                 { "id": 14, "interface":"query", "money": 0, "dest": 4 }]
   },
   {
     "id" : 1,

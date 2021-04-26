@@ -34,6 +34,12 @@ PRETTY_JSON = False
 THREAD_CONCURRENCY = multiprocessing.cpu_count()
 #THREAD_CONCURRENCY = 2
 
+class WriteSet():
+    def __init__(self, Customer, ProgrID, isExecuted):
+        self.Customer = Customer
+        self.ProgID = ProgrID
+        self.isExecuted = isExecuted
+
 # Global logger
 def setup_logger (name):
     """Sets up the Global Logger"""

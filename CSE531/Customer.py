@@ -11,13 +11,14 @@ import time
 import datetime
 import multiprocessing
 import json
+import numpy as np
 
 from concurrent import futures
-from Util import setup_logger, MyLog, sg, get_operation, get_operation_name, get_result_name
+from Util import setup_logger, MyLog, sg, get_operation, get_operation_name, get_result_name, WriteSet
 
 import grpc
 import banking_pb2
-import banking_pb2_grpc   
+import banking_pb2_grpc
 
 ONE_DAY = datetime.timedelta(days=1)
 logger = setup_logger("Customer")
@@ -37,8 +38,12 @@ class Customer:
         # pointer for the stub
         self.stub = None
         # the list of Branches including IDs and Addresses
-        # This is required in the client-centric consistency assignment
+        # This is required in the client-centric consistency assignment to be able to reach every branch
         self.branchList = list()
+        # list of WriteIDs - used in case of client-consistency. Implemented with an Array
+        #self.writeIDs = np.array([], dtype=int)
+        self.writeSets = list()
+        #self.writeIDs = []
         # GUI Window handle, if used
         self.window = None
 
@@ -134,6 +139,18 @@ class Customer:
                         f'Branch {request_dest} not found in the list.  Not executed.')
                     MyLog(logger, LogMessage, self)
                 else:
+                    # First of all, request a WriteID to the Branch.
+                    # This is used to enforce "Monotonic Writes" and "Read Your Writes" client-centric consistency.
+                    wid_response = msgStub.RequestWriteSet(
+                        banking_pb2.WriteSetRequest(
+                            S_ID=self.id,
+                            LAST_ID=0,
+                            Clock=0
+                        )
+                    )
+                    self.writeSets.append(WriteSet(self.id, wid_response.ProgrID, False))
+                    
+                    # Execute the Client's request.
                     # The customer's clock is not used, but could be a future expansion.
                     # In the logical clock assignment (Lampars's algorithm), it is checked,
                     # but the configuration file for customers does not allow setting it anyway.
@@ -145,10 +162,14 @@ class Customer:
                             S_TYPE=banking_pb2.CUSTOMER,    # Source Type = Customer
                             S_ID=self.id,                   # Source ID
                             D_ID=request_dest,
-                            Clock=0
+                            Clock=0,
+                            ProgrID=wid_response.ProgrID
                         )
                     )
-                    
+                    for cws in self.writeSets:
+                        if (cws == WriteSet(self.id, wid_response.ProgrID, False)):
+                            cws = WriteSet(self.id, wid_response.ProgrID, True)
+
                     if request_operation == banking_pb2.QUERY:
                         response_amount_string = f"Balance: {response.Amount}"
                     else:
