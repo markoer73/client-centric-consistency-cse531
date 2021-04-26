@@ -11,7 +11,7 @@ import time
 import datetime
 import multiprocessing
 import json
-import numpy as np
+#import numpy as np
 
 from concurrent import futures
 from Util import setup_logger, MyLog, sg, get_operation, get_operation_name, get_result_name, WriteSet

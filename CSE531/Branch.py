@@ -12,7 +12,7 @@ import datetime
 import sys
 import multiprocessing
 import json
-import numpy as np
+#import numpy as np
 
 from concurrent import futures
 from Util import setup_logger, MyLog, sg, get_operation, get_operation_name, get_result_name, SLEEP_SECONDS, WriteSet, Set_WriteSet_Executed
@@ -145,6 +145,16 @@ class Branch(banking_pb2_grpc.BankingServicer):
                 self.eventExecute()                     # Local Clock is advanced
                 time.sleep(SLEEP_SECONDS)
 
+        # Since it is a propagation, this WriteSet is not present in this Branch.
+        if request.D_ID == DO_NOT_PROPAGATE:
+            # Add the WriteSet to the list
+            self.writeSets.append(WriteSet(request.S_ID, request.ProgrID, False))
+            LogMessage = (
+                f'[Branch {self.id}] ({request.S_ID},{NewID}) <- WriteSet reserved for Customer {request.S_ID}')
+            if (self.clock_events != None):
+                LogMessage += (f' - Clock: {Return_clock}')
+            MyLog(logger, LogMessage, self)
+
         balance_result = None
         response_result = None
 
@@ -211,11 +221,12 @@ class Branch(banking_pb2_grpc.BankingServicer):
             LogMessage += (f' - Clock: {self.local_clock}')
         MyLog(logger, LogMessage, self)
 
-        # Sets the WriteSet as executed, if not a query and not a propagation
-        if (request.OP != banking_pb2.QUERY) and (request.D_ID != DO_NOT_PROPAGATE):
-            set_found = Set_WriteSet_Executed (self, request.REQ_ID, request.ProgrID)
+        # Sets the WriteSet as executed, if not a query - AND if a propagation
+        #if (request.OP != banking_pb2.QUERY) and (request.D_ID != DO_NOT_PROPAGATE):
+        if request.OP != banking_pb2.QUERY:
+            set_found = Set_WriteSet_Executed (self, request.S_ID, request.ProgrID)
             LogMessage = (
-                f'[Branch {self.id}] WriteSet (C: {request.REQ_ID}, R: {request.ProgrID}) ')
+                f'[Branch {self.id}] WriteSet (C: {request.S_ID}, R: {request.ProgrID}) ')
             if set_found:
                 LogMessage += (f'= Executed')
             else:
@@ -232,7 +243,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
                 self.propagateReceive(request.Clock)            # Sets clock for propagation received
         else:
             if response_result == banking_pb2.SUCCESS and not(request.OP == banking_pb2.QUERY):
-                self.Propagate_Event(request.REQ_ID, request.Amount, request.OP)    # Execute Propagation
+                self.Propagate_Event(request.REQ_ID, request.ProgrID, request.Amount, request.OP)    # Execute Propagation
 
         if (self.clock_events != None):
             self.eventResponse()                                # Call for eventResponse
@@ -308,7 +319,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
                     min_wid = curr_set.ProgrID
 
         LogMessage = (
-            f'[Branch {self.id}] Check WriteSet (C: {request.S_ID}, R: {request.LAST_ID}) '
+            f'[Branch {self.id}] Check WriteSet (C: {request.S_ID}, P: {request.LAST_ID}) '
             f'is the first = {(min_wid == request.LAST_ID)}')
         if (self.clock_events != None):             # Verify if in the logical clock use
             LogMessage += (f' - Clock {self.local_clock}')
@@ -356,7 +367,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
                         )
                     )
                     LogMessage = (
-                        f'[Branch {self.id}] Received {response.IS_LAST} to WriteSet ({customer_id}, {request_id}) '
+                        f'[Branch {self.id}] Received {response.IS_LAST} to WriteSet (C: {customer_id}, P: {request_id}) '
                         f'<- Branch {curr_branch[0]}'
                         )
                     if (self.clock_events != None):         # Verify if in the logical clock case
@@ -450,7 +461,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
         self.balance = new_balance
         return banking_pb2.SUCCESS, new_balance
 
-    def Propagate_Event(self, request_id, amount, Operation):
+    def Propagate_Event(self, request_id, progr_id, amount, Operation):
         """
         Implementation of message sending for propagation of both
         WITHDRAW and DEPOSIT.
@@ -476,9 +487,9 @@ class Branch(banking_pb2_grpc.BankingServicer):
                 MyLog(logger, LogMessage, self)
 
                 try:
-                    msgStub = banking_pb2_grpc.BankingStub(grpc.insecure_channel(curr_branch[1]))
+                    msgStubPrp = banking_pb2_grpc.BankingStub(grpc.insecure_channel(curr_branch[1]))
 
-                    response = msgStub.MsgDelivery(
+                    response = msgStubPrp.MsgDelivery(
                         banking_pb2.MsgDeliveryRequest(
                             REQ_ID=request_id,
                             OP=Operation,
@@ -487,7 +498,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
                             S_ID=self.id,                   # Source ID 
                             D_ID=DO_NOT_PROPAGATE,          # Sets DO_NOT_PROPAGATE for receiving branches
                             Clock=self.local_clock,
-                            ProgrID=request_id
+                            ProgrID=progr_id
                         )
                     )
                     LogMessage = (
