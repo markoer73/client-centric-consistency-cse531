@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 cd CSE531
 
@@ -39,7 +39,7 @@ test -f ccc_monotonic_writes_balance.json && rm ccc_monotonic_writes_balance.jso
 
 echo "Running monotonic writes demo - Press any key to start"
 echo
-read -n 1
+read -n 1;
 # Client-centric consistency - Monotonic Writes demonstration - no graphical interface - pretty print JSON
 ../bin/python3 Main.py -i ccc_monotonic_writes.json -o ccc_monotonic_writes_output.json -b ccc_monotonic_writes_balance.json -pTrue -wFalse
 

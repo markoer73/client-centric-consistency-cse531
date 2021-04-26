@@ -187,7 +187,7 @@ class Customer:
                                 'balance': response.Amount
                             }
                             json.dump(brecord, outfileb)
-                            outfileb.write('\n')
+                            #outfileb.write('\n')
                     LogMessage = (
                         f'[Customer {self.id}] ID {request_id}: {get_result_name(response.RC)} <- Branch {request_dest} - '
                         f'{response_amount_string}')

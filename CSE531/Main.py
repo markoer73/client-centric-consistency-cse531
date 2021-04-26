@@ -67,7 +67,10 @@ def Load_Input_File(filename, branches_list, customers_list):
     # Append the list of all events to customers
     for c in customers_list:
         for e in c.events:
-            MyLog(logger, f'[Main] Customer {c.id} identified event #{e["id"]} = {e["interface"]}, {e["money"]}')
+            try:
+                MyLog(logger, f'[Main] Customer {c.id} identified event #{e["id"]} = {e["interface"]}, {e["money"]}')
+            except KeyError:
+                MyLog(logger, f'[Main] Customer {c.id} identified event #{e["id"]} = {e["interface"]}')
 
     file.close()
 
