@@ -55,7 +55,7 @@ read -n 1;
 echo
 echo
 echo "Printing the balance output..."
-cat ccc_monotonic_writes_balance.json
+cat ccc_read_your_writes_balance.json
 echo
 echo
 
