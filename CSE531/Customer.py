@@ -14,7 +14,7 @@ import json
 #import numpy as np
 
 from concurrent import futures
-from Util import setup_logger, MyLog, sg, get_operation, get_operation_name, get_result_name, WriteSet
+from Util import setup_logger, MyLog, sg, get_operation, get_operation_name, get_result_name, WriteSet, Set_WriteSet_Executed
 
 import grpc
 import banking_pb2
@@ -127,13 +127,13 @@ class Customer:
                 MyLog(logger, LogMessage, self)
 
                 # Find the right Branch to send to
-                msgStub = None
+                msgStubClient = None
                 for curr_branch in self.branchList:
                     if request_dest == curr_branch[0]:
-                        msgStub = banking_pb2_grpc.BankingStub(grpc.insecure_channel(curr_branch[1]))
+                        msgStubClient = banking_pb2_grpc.BankingStub(grpc.insecure_channel(curr_branch[1]))
                         break
                 
-                if msgStub == None:
+                if msgStubClient == None:
                     LogMessage = (
                         f'[Customer {self.id}] Error on ID {request_id}: '
                         f'Branch {request_dest} not found in the list.  Not executed.')
@@ -143,7 +143,7 @@ class Customer:
                     if request_operation != banking_pb2.QUERY:
                         # First of all, request a WriteID to the Branch - if not a query.
                         # This is used to enforce "Monotonic Writes" and "Read Your Writes" client-centric consistency.
-                        wid_response = msgStub.RequestWriteSet(
+                        wid_response = msgStubClient.RequestWriteSet(
                             banking_pb2.WriteSetRequest(
                                 S_ID=self.id,
                                 LAST_ID=request_id,
@@ -157,7 +157,7 @@ class Customer:
                     # The customer's clock is not used, but could be a future expansion.
                     # In the logical clock assignment (Lampars's algorithm), it is checked,
                     # but the configuration file for customers does not allow setting it anyway.
-                    response = msgStub.MsgDelivery(
+                    response = msgStubClient.MsgDelivery(
                         banking_pb2.MsgDeliveryRequest(
                             REQ_ID=request_id,
                             OP=request_operation,

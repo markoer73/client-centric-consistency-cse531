@@ -59,7 +59,7 @@ message MsgDeliveryRequest  {
 	double Amount 	= 3;		// Amount involved in the operation
 	uint32 S_TYPE	= 4;		// Source Type (Customer or Branch)
 	uint32 S_ID		= 5;		// Source ID
-	uint32 D_ID		= 6;		// Branch Destination ID
+	int32 D_ID		= 6;		// Branch Destination ID
 	uint64 Clock	= 7;		// Local clock in the case of logical clock use
 	uint64 ProgrID	= 8;		// Progressive ID of the write request
 //	WriteSetStruct WriteID = 8;	// WriteID passed to the Branch
