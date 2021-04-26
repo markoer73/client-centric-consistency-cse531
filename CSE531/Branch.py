@@ -15,7 +15,7 @@ import json
 import numpy as np
 
 from concurrent import futures
-from Util import setup_logger, MyLog, sg, get_operation, get_operation_name, get_result_name, SLEEP_SECONDS, WriteSet
+from Util import setup_logger, MyLog, sg, get_operation, get_operation_name, get_result_name, SLEEP_SECONDS, WriteSet, Set_WriteSet_Executed
 
 import grpc
 import banking_pb2
@@ -63,7 +63,8 @@ class Branch(banking_pb2_grpc.BankingServicer):
 
     def RequestWriteSet(self, request, context):
         """
-        Reserves a WriteID for a Customer. WriteIDs is a list of Customer, Progressive ID, isExecuted.
+        Reserves a WriteID for a Customer. WriteIDs is a list of Customer,
+        Progressive ID, isExecuted.
 
         Args:
             self:    Branch class
@@ -87,7 +88,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
         MyLog(logger, LogMessage, self)
 
         # WriteSets are implemented as list (Class WriteSet)
-        # Find the last ID
+        # Find the last ID if present
         max_wid = request.LAST_ID
         for curr_set in self.writeSets:
             if curr_set.Customer == request.S_ID:
@@ -95,6 +96,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
                     max_wid = curr_set.ProgrID
         NewID = max_wid+1
 
+        # Add the WriteSet to the list
         self.writeSets.append(WriteSet(request.S_ID, NewID, False))
 
         LogMessage = (
@@ -209,6 +211,19 @@ class Branch(banking_pb2_grpc.BankingServicer):
             LogMessage += (f' - Clock: {self.local_clock}')
         MyLog(logger, LogMessage, self)
 
+        # Sets the WriteSet as executed, if not a query and not a propagation
+        if (request.OP != banking_pb2.QUERY) and (request.D_ID != DO_NOT_PROPAGATE):
+            set_found = Set_WriteSet_Executed (self, request.REQ_ID, request.ProgrID)
+            LogMessage = (
+                f'[Branch {self.id}] WriteSet (C: {request.REQ_ID}, R: {request.ProgrID}) ')
+            if set_found:
+                LogMessage += (f'= Executed')
+            else:
+                LogMessage += (f'NOT FOUND!')
+            if (self.clock_events != None):             # Verify if in the logical clock use
+                LogMessage += (f' - Clock {self.local_clock}')
+            MyLog(logger, LogMessage, self)
+
         # If DO_NOT_PROPAGATE it means it has arrived from another branch and it must not be
         # spread further.  Also, there is no need to propagate query operations, in general.
         # Finally, only propagates if the operation has been successful.
@@ -286,15 +301,15 @@ class Branch(banking_pb2_grpc.BankingServicer):
         """        
 #        with self.branch_lock:
 
-        min_wid = request.S_ID
+        min_wid = request.LAST_ID
         for curr_set in self.writeSets:
             if (curr_set.Customer == request.S_ID) and not(curr_set.isExecuted):
                 if curr_set.ProgrID < min_wid:
                     min_wid = curr_set.ProgrID
 
         LogMessage = (
-            f'[Branch {self.id}] Check ID {request.LAST_ID} Customer {request.S_ID} '
-            f'vs {min_wid} = {(min_wid == request.LAST_ID)}')
+            f'[Branch {self.id}] Check WriteSet (C: {request.S_ID}, R: {request.LAST_ID}) '
+            f'is the first = {(min_wid == request.LAST_ID)}')
         if (self.clock_events != None):             # Verify if in the logical clock use
             LogMessage += (f' - Clock {self.local_clock}')
         MyLog(logger, LogMessage, self)
@@ -324,7 +339,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
         for curr_branch in self.branchList:
             if self.id != curr_branch[0]:                   # Do not ask to self (should not happen, added security)
                 LogMessage = (
-                    f'[Branch {self.id}] Check WriteSet (R: {customer_id}, P: {request_id}) '
+                    f'[Branch {self.id}] Check WriteSet (C: {customer_id}, P: {request_id}) '
                     f'-> Branch {curr_branch[0]}')
                 if (self.clock_events != None):             # Verify if in the logical clock use
                     LogMessage += (f' - Clock {self.local_clock}')
@@ -342,10 +357,11 @@ class Branch(banking_pb2_grpc.BankingServicer):
                     )
                     LogMessage = (
                         f'[Branch {self.id}] Received {response.IS_LAST} to WriteSet ({customer_id}, {request_id}) '
-                        f'<- Branch {curr_branch[0]} - '
+                        f'<- Branch {curr_branch[0]}'
                         )
                     if (self.clock_events != None):         # Verify if in the logical clock case
                         LogMessage += (f' - Clock: {response.Clock}')
+                    MyLog(logger, LogMessage, self)
 
                     # if (self.clock_events != None):
                     #     self.eventResponse()                # Call for eventResponse

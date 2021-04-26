@@ -102,6 +102,26 @@ def Process_Args():
 
     return _Input, _Output, _Clock, _Windows, _Pretty
 
+def Set_WriteSet_Executed(self, customer_id, request_id):
+    """
+    Set a spefic WriteSet in the list as executed.
+
+    Args:
+        Self:           Calling class (branch or customer)
+        customer_id:    The ID of the customer
+        request_id:     The request ID to check
+
+    Returns:  Boolean, true if it is executed okay
+
+    """        
+    set_found = False
+    for curr_set in self.writeSets:
+        if (curr_set.Customer == customer_id) and (curr_set.ProgrID == request_id) and not(curr_set.isExecuted):
+            curr_set.isExecuted = True
+            set_found = True
+
+    return set_found
+
 # Utility functions, used for readability
 #
 def get_operation(operation):

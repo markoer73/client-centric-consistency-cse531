@@ -139,16 +139,19 @@ class Customer:
                         f'Branch {request_dest} not found in the list.  Not executed.')
                     MyLog(logger, LogMessage, self)
                 else:
-                    # First of all, request a WriteID to the Branch.
-                    # This is used to enforce "Monotonic Writes" and "Read Your Writes" client-centric consistency.
-                    wid_response = msgStub.RequestWriteSet(
-                        banking_pb2.WriteSetRequest(
-                            S_ID=self.id,
-                            LAST_ID=0,
-                            Clock=0
+                    progr_request_id = request_id
+                    if request_operation != banking_pb2.QUERY:
+                        # First of all, request a WriteID to the Branch - if not a query.
+                        # This is used to enforce "Monotonic Writes" and "Read Your Writes" client-centric consistency.
+                        wid_response = msgStub.RequestWriteSet(
+                            banking_pb2.WriteSetRequest(
+                                S_ID=self.id,
+                                LAST_ID=request_id,
+                                Clock=0
+                            )
                         )
-                    )
-                    self.writeSets.append(WriteSet(self.id, wid_response.ProgrID, False))
+                        self.writeSets.append(WriteSet(self.id, wid_response.ProgrID, False))
+                        progr_request_id = wid_response.ProgrID
                     
                     # Execute the Client's request.
                     # The customer's clock is not used, but could be a future expansion.
@@ -163,17 +166,14 @@ class Customer:
                             S_ID=self.id,                   # Source ID
                             D_ID=request_dest,
                             Clock=0,
-                            ProgrID=wid_response.ProgrID
+                            ProgrID=progr_request_id
                         )
                     )
-                    for cws in self.writeSets:
-                        if (cws == WriteSet(self.id, wid_response.ProgrID, False)):
-                            cws = WriteSet(self.id, wid_response.ProgrID, True)
-
-                    if request_operation == banking_pb2.QUERY:
-                        response_amount_string = f"Balance: {response.Amount}"
-                    else:
+                    if request_operation != banking_pb2.QUERY:
+                        set_found = Set_WriteSet_Executed (self, self.id, progr_request_id)
                         response_amount_string = f"New balance: {response.Amount}"
+                    else:
+                        response_amount_string = f"Balance: {response.Amount}"
                     LogMessage = (
                         f'[Customer {self.id}] ID {request_id}: {get_result_name(response.RC)} <- Branch {request_dest} - '
                         f'{response_amount_string}')
