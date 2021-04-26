@@ -81,11 +81,13 @@ def main():
 
     MyLog(logger, f'[Main] *** Processing Arguments ***')
 
-    input_file, output_file, clock_file, _sg_windows, _pretty_json = Process_Args()
+    input_file, output_file, clock_file, balance_file, _sg_windows, _pretty_json = Process_Args()
     if not input_file:
         input_file = 'input.json'
     if not output_file:
         output_file = 'output.json'
+    if not balance_file:
+        output_file = 'balance.json'
     branches_list = list()
     customers_list = list()
     PRETTY_JSON = _pretty_json
@@ -166,7 +168,7 @@ def main():
         curr_customer.branchList = branches_addresses_ids[:]
         
         worker = multiprocessing.Process(name=f'Customer-{curr_customer.id}', target=Customer.Run_Customer,
-                                            args=(curr_customer,Branch_address,output_file,_sg_windows,THREAD_CONCURRENCY))
+                                            args=(curr_customer,Branch_address,output_file,balance_file,_sg_windows,THREAD_CONCURRENCY))
         if ((sg == NotImplemented or not(_sg_windows)) and SLEEP_SECONDS):
             # Wait some seconds before initialising the clients, to give time the servers to start
             MyLog(logger, f'[Main] *** Waiting for {SLEEP_SECONDS} seconds before starting the clients ***')

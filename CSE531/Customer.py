@@ -91,7 +91,7 @@ class Customer:
     # Iterate through the list of the customer's events, sends the messages,
     # and output to the JSON file
     #
-    def executeEvents(self, output_file, want_windows=False):
+    def executeEvents(self, output_file, balance_file, want_windows=False):
         """
         Boots a client (customer) stub in a subprocess.
         If PySimpleGUI/TK are installed and in mode 2, launches a window in the Windows' Manager.
@@ -107,9 +107,15 @@ class Customer:
         """
         record = {'id': self.id, 'recv': []}
         for event in self.events:
-            request_id = event['id']
+            try:
+                request_id = event['id']            # In case of client-consistency
+            except KeyError:
+                request_id = self.id
             request_operation = get_operation(event['interface'])
-            request_amount = event['money']
+            try:
+                request_amount = event['money']
+            except KeyError:
+                request_amount = 0                  # In case of query
             try:
                 request_dest = event['dest']        # In case of client-consistency
             except KeyError:
@@ -174,6 +180,14 @@ class Customer:
                         response_amount_string = f"New balance: {response.Amount}"
                     else:
                         response_amount_string = f"Balance: {response.Amount}"
+                        # Output the final balance for the customer from the last query
+                        with open(f'{balance_file}', 'a') as outfileb:
+                            brecord = {
+                                'id': self.id,
+                                'balance': response.Amount
+                            }
+                            json.dump(brecord, outfileb)
+                            outfileb.write('\n')
                     LogMessage = (
                         f'[Customer {self.id}] ID {request_id}: {get_result_name(response.RC)} <- Branch {request_dest} - '
                         f'{response_amount_string}')
@@ -206,7 +220,7 @@ class Customer:
  
     # Spawn the Customer process client. No need to bind to a port here; rather, we are connecting to one.
     #
-    def Run_Customer(self, Branch_address, output_file, want_windows=False, THREAD_CONCURRENCY=1):
+    def Run_Customer(self, Branch_address, output_file, balance_file, want_windows=False, THREAD_CONCURRENCY=1):
         """Start a client (customer) in a subprocess."""
 
         MyLog(logger,f'[Customer {self.id}] Booting...')
@@ -226,7 +240,7 @@ class Customer:
                 if wevent == "Run":
                     MyLog(logger,f'[Customer {self.id}] Executing events...')
 #                    with client_lock:
-                    Customer.executeEvents(self, output_file, want_windows)
+                    Customer.executeEvents(self, output_file, balance_file, want_windows)
                     MyLog(logger,f'[Customer {self.id}] Events executed. Exiting successfully.')
                     # Uncommenting this break makes the Customer's Window close after Run
                     #break
@@ -234,5 +248,6 @@ class Customer:
             self.window.close()
         else:
  #           with client_lock:
-            Customer.executeEvents(self, output_file, want_windows)
+            Customer.executeEvents(self, output_file, balance_file, want_windows)
             MyLog(logger,f'[Customer {self.id}] Events executed. Exiting successfully.')
+

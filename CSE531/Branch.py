@@ -137,13 +137,14 @@ class Branch(banking_pb2_grpc.BankingServicer):
         if (request.D_ID != DO_NOT_PROPAGATE) or (request.OP == banking_pb2.QUERY):
             while not(self.Is_First_WriteSet (request.S_ID, request.ProgrID)):
                 LogMessage = (
-                    f'[Branch {self.id}] Waiting to execute {request.REQ_ID} from {request.S_ID}: '
+                    f'[Branch {self.id}] ...Waiting to execute {request.REQ_ID} from {request.S_ID}: '
                     f'{get_operation_name(request.OP)} {request.Amount}')
                 if (self.clock_events != None):
                     LogMessage += (f' - Clock: {request.Clock}')
                 MyLog(logger, LogMessage, self)
                 self.eventExecute()                     # Local Clock is advanced
-                time.sleep(SLEEP_SECONDS)
+                if (SLEEP_SECONDS):
+                    time.sleep(SLEEP_SECONDS)
 
         # Since it is a propagation, this WriteSet is not present in this Branch.
         if request.D_ID == DO_NOT_PROPAGATE:
@@ -290,8 +291,8 @@ class Branch(banking_pb2_grpc.BankingServicer):
 
         if ((sg == NotImplemented or (not self.window)) and SLEEP_SECONDS):
             # Wait some seconds to allow execution of propagation in case of command line execution
-            MyLog(logger, f'[Main] *** Waiting for {SLEEP_SECONDS} seconds to allow finish propagations ***')
-            MyLog(logger, f'[Main]     (Otherwise it will sometimes fail when the computer is slow)')
+            MyLog(logger, f'[Branch {self.id}] *** Waiting for {SLEEP_SECONDS} seconds to allow finish propagations ***')
+            MyLog(logger, f'[Branch {self.id}]     (Otherwise it will sometimes fail when the computer is slow)')
             time.sleep(SLEEP_SECONDS)
 
         return rpc_response

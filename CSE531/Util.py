@@ -24,8 +24,8 @@ except ImportError:
     sg = NotImplemented
 
 # Sometimes required to unstuck processes - but generally not used
-SLEEP_SECONDS = 3
-#SLEEP_SECONDS = 0
+#SLEEP_SECONDS = 3
+SLEEP_SECONDS = 0
 
 # Prettify JSON output. Overridden by command line (-p).
 PRETTY_JSON = False
@@ -66,11 +66,12 @@ def MyLog (logger, LogMessage, obj=None):
 
 def Process_Args():
     """Parse command-line arguments."""
-    _Input = _Output = _Clock = _Windows = _Pretty = None
+    _Input = _Output = _Clock = _Balance = _Windows = _Pretty = None
     all_args = argparse.ArgumentParser(description='Input, Output, Clock file names')
     all_args.add_argument('-i', '--Input', required=False, help='File name containing branches and customers, in JSON format (optional; defaults to input.json')
     all_args.add_argument('-o', '--Output', required=False, help='Output file name to use (optional; defaults to output.json)')
     all_args.add_argument('-c', '--Clock', required=False, help='Output file from branches - enables Lampard\'s logical clocks (optional; if not provided, clocks are disabled)')
+    all_args.add_argument('-b', '--Balance', required=False, help='Output file for final balance print (optional; defaults to balance.json)')
     all_args.add_argument('-w', '--Windows', required=False, help='Enables use of graphical windows/user interactivity (default=False)')
     all_args.add_argument('-p', '--Pretty', required=False, help='Pretty Print JSON output (default=False)')
     args = all_args.parse_args()
@@ -80,6 +81,8 @@ def Process_Args():
         _Output = args.Output.strip()
     if (args.Clock != None):
         _Clock = args.Clock.strip()
+    if (args.Balance != None):
+        _Balance = args.Balance.strip()
     if (args.Windows != None):
         if ((args.Windows.strip().lower() == "true") or (args.Windows.strip().lower() == "yes")):
             _Windows = True
@@ -100,7 +103,7 @@ def Process_Args():
         _Pretty = False
         PRETTY_JSON = False
 
-    return _Input, _Output, _Clock, _Windows, _Pretty
+    return _Input, _Output, _Clock, _Balance, _Windows, _Pretty
 
 def Set_WriteSet_Executed(self, customer_id, request_id):
     """
