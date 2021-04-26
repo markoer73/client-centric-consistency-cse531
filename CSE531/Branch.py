@@ -150,7 +150,7 @@ class Branch(banking_pb2_grpc.BankingServicer):
             # Add the WriteSet to the list
             self.writeSets.append(WriteSet(request.S_ID, request.ProgrID, False))
             LogMessage = (
-                f'[Branch {self.id}] ({request.S_ID},{NewID}) <- WriteSet reserved for Customer {request.S_ID}')
+                f'[Branch {self.id}] (C: {request.S_ID}, R: {Request.ProgrID}) <- WriteSet reserved for Customer')
             if (self.clock_events != None):
                 LogMessage += (f' - Clock: {Return_clock}')
             MyLog(logger, LogMessage, self)
