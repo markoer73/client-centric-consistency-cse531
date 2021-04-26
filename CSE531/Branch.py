@@ -486,7 +486,8 @@ class Branch(banking_pb2_grpc.BankingServicer):
                             S_TYPE=banking_pb2.BRANCH,      # Source Type = Branch
                             S_ID=self.id,                   # Source ID 
                             D_ID=DO_NOT_PROPAGATE,          # Sets DO_NOT_PROPAGATE for receiving branches
-                            Clock=self.local_clock
+                            Clock=self.local_clock,
+                            ProgrID=request_id
                         )
                     )
                     LogMessage = (
