@@ -24,8 +24,8 @@ except ImportError:
     sg = NotImplemented
 
 # Sometimes required to unstuck processes - but generally not used
-#SLEEP_SECONDS = 3
-SLEEP_SECONDS = 0
+SLEEP_SECONDS = 3
+#SLEEP_SECONDS = 0
 
 # Prettify JSON output. Overridden by command line (-p).
 PRETTY_JSON = False

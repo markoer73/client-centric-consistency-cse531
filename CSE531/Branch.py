@@ -131,16 +131,17 @@ class Branch(banking_pb2_grpc.BankingServicer):
 
         # Enforces Monotonic Writes consistency by verifying this is the smallest
         # WriteSet still to be executed for a given customer.  If not, waits for the
-        # others to complete.
-        while not(self.Is_First_WriteSet (request.S_ID, request.ProgrID)):
-            LogMessage = (
-                f'[Branch {self.id}] Waiting to execute {request.REQ_ID} from {request.S_ID}: '
-                f'{get_operation_name(request.OP)} {request.Amount}')
-            if (self.clock_events != None):
-                LogMessage += (f' - Clock: {request.Clock}')
-            MyLog(logger, LogMessage, self)
-            self.eventExecute()                     # Local Clock is advanced
-            time.sleep(SLEEP_SECONDS)
+        # others to complete - but only if it is not under a propagation or a query.
+        if (request.D_ID != DO_NOT_PROPAGATE) or (request.OP == banking_pb2.QUERY):
+            while not(self.Is_First_WriteSet (request.S_ID, request.ProgrID)):
+                LogMessage = (
+                    f'[Branch {self.id}] Waiting to execute {request.REQ_ID} from {request.S_ID}: '
+                    f'{get_operation_name(request.OP)} {request.Amount}')
+                if (self.clock_events != None):
+                    LogMessage += (f' - Clock: {request.Clock}')
+                MyLog(logger, LogMessage, self)
+                self.eventExecute()                     # Local Clock is advanced
+                time.sleep(SLEEP_SECONDS)
 
         balance_result = None
         response_result = None
