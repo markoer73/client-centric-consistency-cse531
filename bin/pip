@@ -1,4 +1,4 @@
-#!/home/tano/Documents/client-centric-consistency/bin/python
+#!/home/tano/Documents/client-centric-consistency/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
